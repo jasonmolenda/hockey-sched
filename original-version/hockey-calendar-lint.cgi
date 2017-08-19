@@ -123,7 +123,9 @@ end
             "Ssand Lizards" =>"Sand Lizards", 
             "Blue MArtini" => "Blue Martini",
             "Coconuts \\(formerly Dates\\)" => "Coconuts",
-            "Dates \\(formerly Coconuts\\)" => "Dates" }
+            "Dates \\(formerly Coconuts\\)" => "Dates",
+            "TEAL" => "Teal",
+            "Desert Owls" => "Oasis Owls" }
 
 # takes an array of ics_entries from ics_parser() and
 # returns an array of hashes with keys :time, :home, :away
@@ -483,7 +485,11 @@ else
   if cgi.has_key?("io-calendar-check") && cgi.has_key?("league")
     season_to_test = cgi["io-calendar-check"]
     league = cgi["league"]
-    if season_to_test == "fall2014"
+    if season_to_test == "spring2016"
+      league_urls = league_urls_2014_and_later
+      start_date = "2016-03-27"
+      end_date = "2016-09-25"
+    elsif season_to_test == "fall2014"
       league_urls = league_urls_2014_and_later
       start_date = "2014-09-26"
       end_date = "2015-03-08"
