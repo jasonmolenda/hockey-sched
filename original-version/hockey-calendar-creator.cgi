@@ -167,10 +167,26 @@ end
 def create_team_combinations (weekcount, teamcount)
   games_per_week = teamcount / 2
   games = Array.new
-  one_block_repeated = 1
+
+  one_block_repeated = 0
+
+# For 4 teams and less we won't find a random (non-repeating) full-season solution
+# so just get one 3-game sequence block of games and repeat it.
   if teamcount <= 4
     one_block_repeated = 1
   end
+
+# 8 team leagues seem to work out fine with a repeating schedule
+  if teamcount == 8
+    one_block_repeated = 1
+  end
+
+# 6 team leagues have problems assigning timeslots for repeated schedule... random
+# seems to work better here?
+  if teamcount == 6
+    one_block_repeated = 0
+  end
+
   if one_block_repeated == 1
     one_rotation = teamcount - 1
     retry_count = 0
@@ -207,7 +223,21 @@ def create_team_combinations (weekcount, teamcount)
   games
 end
 
-def order_game_times (team_pairings, teamcount)
+# team_pairings is an array of teams who will play each other.
+# For an 8 team league, each four elements in team_pairings constitute one
+# week of games.  e.g.
+#
+# team_pairings[0] == [1, 5]
+# team_pairings[1] == [2, 6]
+# team_pairings[2] == [8, 7]
+# team_pairings[3] == [3, 4]
+#
+# But within a single week the timeslots have not yet been assigned.
+# This function assigns the timeslots. For each team pair and each timeslot, it
+# computes a score (higher scores mean worse) and then it finds the team
+# with the best (lowest) score for each timeslot in a given week.
+
+def order_game_times (team_pairings, teamcount, debug)
   gamecount = teamcount / 2
   weekcount = team_pairings.size() / gamecount
 
@@ -320,10 +350,9 @@ def order_game_times (team_pairings, teamcount)
 
 # Give the lowest scoring team pairs the correct timeslots.
 
-    print_debug_gatetime_scores = 1
-    if print_debug_gatetime_scores == 1
-      puts "<br>week number #{weeknum} score summary:"
-      printf "<pre>            "
+    if debug == true
+      puts "<br><pre>week number #{weeknum} score summary:"
+      printf "            "
       timeslot_scores[1].sort do |x,y| 
           x_team_a_b = "#{this_week_games[x[0]][0]}+#{this_week_games[x[0]][1]}"
           y_team_a_b = "#{this_week_games[y[0]][0]}+#{this_week_games[y[0]][1]}"
@@ -331,17 +360,25 @@ def order_game_times (team_pairings, teamcount)
       end.each {|x| printf "team #{this_week_games[x[0]][0]}+#{this_week_games[x[0]][1]}  "}
       printf "\n"
       1.upto(gamecount) do |time|
-        printf "timeslot %d  ", time
+        printf "timeslot %d ", time
         timeslot_scores[time].sort do |x,y| 
             x_team_a_b = "#{this_week_games[x[0]][0]}+#{this_week_games[x[0]][1]}"
             y_team_a_b = "#{this_week_games[y[0]][0]}+#{this_week_games[y[0]][1]}"
             x_team_a_b <=> y_team_a_b
-        end.each {|x| printf "     %3d ", x[1]}
+        end.each {|x| printf "      %3d ", x[1]}
         printf "\n"
       end
       puts "</pre>"
     end
- 
+
+# The simple appraoch is to do 1..gamecount but you want to put the
+# least desirable timeslots up front.  If timeslot 4 (e.g. 10:45pm) is an
+# especially bad timeslot that should come first.  By the time you get to
+# the last timeslot you're evaluating, teams with good scores may have 
+# already been assigned an earlier timeslot and you get stuck picking a
+# high-scoring (bad) team pair for that timeslot.
+# So the order that you pick the timeslots in is important.
+
     game_schedule_order = Array.new
     if gamecount == 4
       game_schedule_order = [4, 1, 3, 2]
@@ -354,7 +391,7 @@ def order_game_times (team_pairings, teamcount)
     played_this_week = Hash.new
     game_schedule_order.each do |time|
       sorted_teams = timeslot_scores[time].sort {|x,y| x[1] <=> y[1]}
-      if print_debug_gatetime_scores == 1
+      if debug == true
         puts "<br>for weeknum #{weeknum} timeslot #{time} scores are "
         sorted_teams.each do |k|
         puts "#{this_week_games[k[0]][0]}+#{this_week_games[k[0]][1]}==#{k[1]}"
@@ -364,9 +401,8 @@ def order_game_times (team_pairings, teamcount)
         if !played_this_week.has_key?(j[0])
           played_this_week[j[0]] = "used"
           team_a, team_b = this_week_games[j[0]][0], this_week_games[j[0]][1]
-          if print_debug_gatetime_scores == 1
+          if debug == true
             puts "<br>weeknum #{weeknum} timeslot #{time} #{team_a} and #{team_b} won with score #{j[1]}"
-            puts "<br>" if time == 1
           end
           schedule[weeknum][time] = [team_a, team_b]
           gametimes[team_a][time] += 1
@@ -390,6 +426,26 @@ def order_game_times (team_pairings, teamcount)
   end
   game_results
 end
+
+# games is an array of teams who will play each other.
+# For an 8 team league, each four elements in games constitute one
+# week of games.  e.g.
+#
+# games[0] == [1, 5]
+# games[1] == [2, 6]
+# games[2] == [8, 7]
+# games[3] == [3, 4]
+#
+# but home and away positions haven't yet been computed.
+# Try to blanace them out so everyone has the same number of
+# home & away games.  In the output array, the first team listed
+# is "home" and the second team listed is "away.
+
+# opportunities for improvement:
+
+# Make sure no team goes over 50% for home/away (possible deadlocking
+# problems)
+# Make sure teams don't have back-to-back away games.
 
 def balance_home_and_away(games, teamcount)
   home_count = Array.new
@@ -458,10 +514,20 @@ def parse_args(cgi, results)
   game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['times'] == "7008159301045"
   game_times = ["20:15", "21:30", "22:45"] if cgi['times'] == "8159301045"
   game_times = ["21:00", "22:15"] if cgi['times'] == "9001015"
-  game_times = ["4:30", "5:45"] if cgi['times'] == "430545"
+  game_times = ["04:30", "05:45"] if cgi['times'] == "430545"
   if cgi['times'] == "other"
     times = cgi['times-manual-entry'].gsub(/\s+/, "").split(/[\r\n,]+/)
     game_times = times.map {|l| if l =~ /(\d+):(\d+)/; sprintf("%02d:%02d", $1, $2); end}
+  end
+
+  if cgi['times'] == "same"
+    game_times = ["04:30", "05:45"] if cgi['league'] == "Sunday"
+    game_times = ["20:15", "21:30", "22:45"] if cgi['league'] == "Monday"
+    game_times = ["20:15", "21:30", "22:45"] if cgi['league'] == "Tuesday"
+    game_times = ["20:15", "21:30", "22:45"] if cgi['league'] == "Thursday"
+    game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Wednesday"
+    game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Friday"
+    game_times = ["21:00", "22:15"] if cgi['league'] == "Saturday"
   end
 
   if game_times.size() == 0
@@ -537,12 +603,17 @@ def parse_args(cgi, results)
     holidays[holiday] = tmparr
   end
 
+  debug = false
+  debug = true if cgi['debug'] == "true"
+
   results[:season_start_date] = season_start_date
   results[:season_end_date] = season_end_date
   results[:day_of_week] = day_of_week
   results[:game_times] = game_times
   results[:team_names] = team_names
   results[:holidays] = holidays
+  results[:debug] = debug
+  true
 end
 
 
@@ -627,7 +698,7 @@ end
 
 results = Hash.new
 if parse_args(cgi, results) == false
-  puts "</body></html>"
+  puts "Could not parse arguments</body></html>"
   exit
 end
 
@@ -637,6 +708,7 @@ day_of_week = results[:day_of_week]
 game_times = results[:game_times]
 team_names = results[:team_names]
 holidays = results[:holidays]
+debug = results[:debug]
 
 puts "#{(season_end_date - season_start_date).to_i} days between start date and end date"
 
@@ -666,7 +738,7 @@ team_pairings = create_team_combinations(total_weeks, team_names.size())
 # Home/away and timeslots are not yet computed at all.
 
 
-games = order_game_times(team_pairings, team_names.size())
+games = order_game_times(team_pairings, team_names.size(), debug)
 
 games = balance_home_and_away(games, team_names.size())
 
