@@ -6,6 +6,7 @@ require 'etc'
 require 'cgi'
 
 
+@DEBUG = false
 
 def initialize_matrix(mat, dim)
   1.upto(dim) do |i|
@@ -36,11 +37,29 @@ def matrix_empty_spots(mat, dim, team_to_avoid)
   1.upto(dim) do |i|
     1.upto(dim) do |j|
       if mat[i][j] == 0 && i != team_to_avoid && j != team_to_avoid
-        res.push([i, j]) if res.select {|a| a[0] == j && a[1] == i}.length == 0
+        res.push([i, j]) if res.select {|a| (a[0] == j && a[1] == i) || (a[0] == i && a[1] == j)}.length == 0
       end
     end
   end
   return res
+end
+
+def print_matrix_empty_spots(mat, dim, team_to_avoid)
+  str = ""
+  cnt = 0
+  res = Array.new
+  1.upto(dim) do |i|
+    1.upto(dim) do |j|
+      if mat[i][j] == 0
+        if res.select {|a| (a[0] == j && a[1] == i) || (a[0] == i && a[1] == j)}.length == 0
+            res.push([i, j])
+            str += "[#{i} v #{j}] "
+            cnt += 1
+        end
+      end
+    end
+  end
+  STDERR.puts "print_matrix_empty_spots: #{cnt} entries #{str} avoid:#{team_to_avoid}" if @DEBUG
 end
 
 # This creates an array of week_count * game_count, e.g. a five week season with two games
@@ -64,6 +83,8 @@ end
 
 def create_team_combinations_until_deadlocked (games, weekcount, teamcount)
 
+  bye_team = false
+
   # A 7 team league means that each week one team sits out.
   if teamcount % 2 != 0 && teamcount > 2
     bye_team = true
@@ -76,25 +97,33 @@ def create_team_combinations_until_deadlocked (games, weekcount, teamcount)
   matrix = Array.new
   weeknum = 1
   while weeknum <= weekcount
+    STDERR.puts "weeknum is #{weeknum} out of weekcount #{weekcount} weeks" if @DEBUG
+
     initialize_matrix(matrix, teamcount)
+    
+    redo_this_week_with_new_matrix = false
 
   # We may end up with an insolvable matrix below - if that happens,
   # bail out and try again with a new matrix.  Save a copy of all the
   # weeks we've successfully scheduled so far so we can roll back to 
   # this if we deadlock.
     loopcount = 0
+    STDERR.puts "NEW SAVED_WEEKNUM - saving weeknum #{weeknum}" if @DEBUG
     saved_weeknum = weeknum
     saved_games = Array.new
     games.each {|e| saved_games.push e}
   
     while !matrix_full?(matrix, teamcount) && weeknum <= weekcount
       if loopcount > teamcount * teamcount * 2
+	STDERR.puts "ABORT we've exceeded the loopcount #{loopcount} at weeknum #{weeknum} - reverting to saved_weeknum #{saved_weeknum}" if @DEBUG
         weeknum = saved_weeknum
         games = saved_games
         break
       end
       loopcount += 1
   
+      STDERR.puts "loopcount is #{loopcount}" if @DEBUG
+
       thisweek = Array.new
       this_week_failure = false
       this_week_games = Array.new
@@ -111,9 +140,19 @@ def create_team_combinations_until_deadlocked (games, weekcount, teamcount)
         team_to_avoid_this_week = -1
       end
 
+      STDERR.puts "team to avoid is #{team_to_avoid_this_week}" if @DEBUG
   # If we're near the end, just pick out the open spots on the matrix to
   # avoid stupid deadlock problems.
+      print_matrix_empty_spots(matrix, teamcount, team_to_avoid_this_week)
       a = matrix_empty_spots(matrix, teamcount, team_to_avoid_this_week).shuffle
+      STDERR.puts "weeknum #{weeknum} a.length is #{a.length} and teamcount is #{teamcount}" if @DEBUG
+      a.each { |p| STDERR.puts "[#{p[0]} v #{p[1]}]" } if @DEBUG
+      if a.length < games_per_week
+        STDERR.puts "matrix cannot be fully satisified because the remaining available games require the team with abye to play" if @DEBUG
+        redo_this_week_with_new_matrix = true
+        break
+      end
+
       if a.length <= teamcount
         0.upto((games_per_week) - 1) do |i|
           team_a = a[i][0]
@@ -127,6 +166,7 @@ def create_team_combinations_until_deadlocked (games, weekcount, teamcount)
         redo if this_week_games.size != games_per_week
         this_week_games.each do |pair|
           team_a, team_b = pair[0], pair[1]
+	  STDERR.puts "playing team #{team_a} v. #{team_b}" if @DEBUG
           games.push [team_a, team_b]
           matrix[team_a][team_b] = 1
           matrix[team_b][team_a] = 1
@@ -189,6 +229,7 @@ def create_team_combinations_until_deadlocked (games, weekcount, teamcount)
       # block boundary and try again.
 
       if this_week_failure == true
+	STDERR.puts "ABORT2 we've exceeded the loopcount #{loopcount} at weeknum #{weeknum} - reverting to saved_weeknum #{saved_weeknum}" if @DEBUG
         weeknum = saved_weeknum
         games = saved_games
         next
@@ -199,7 +240,9 @@ def create_team_combinations_until_deadlocked (games, weekcount, teamcount)
         matrix[pair[0]][pair[1]] = 1
         matrix[pair[1]][pair[0]] = 1
       end
-      weeknum += 1
+      if redo_this_week_with_new_matrix == false
+      	weeknum += 1
+      end
     end
   end
 end
@@ -248,7 +291,7 @@ def create_team_combinations (weekcount, teamcount)
   end
 
 # 8 team leagues seem to work out fine with a repeating schedule
-  if teamcount == 8
+  if teamcount == 8 || teamcount == 9
     one_block_repeated = 1
   end
 
@@ -265,6 +308,7 @@ def create_team_combinations (weekcount, teamcount)
       games = Array.new
       create_team_combinations_until_deadlocked(games, teamcount - 1, teamcount)
       retry_count = retry_count + 1
+      STDERR.puts "GOT A RESULT retrycount is now #{retry_count + 1}" if @DEBUG
 #     puts "<br>retry #{retry_count} got an array with #{games.size} elements want an array of #{weekcount * games_per_week}"
     end
     puts "<br>It took #{retry_count} tries to generate a complete schedule."
@@ -598,14 +642,14 @@ def parse_args(cgi, results)
   game_times = ["17:45", "19:00", "20:15"] if cgi['times'] == "545700815"
   game_times = ["20:15", "21:30", "22:45"] if cgi['times'] == "8159301045"
   game_times = ["21:00", "22:15"] if cgi['times'] == "9001015"
-  game_times = ["04:30", "05:45"] if cgi['times'] == "430545"
+  game_times = ["16:30", "17:45"] if cgi['times'] == "430545"
   if cgi['times'] == "other"
     times = cgi['times-manual-entry'].gsub(/\s+/, "").split(/[\r\n,]+/)
     game_times = times.map {|l| if l =~ /(\d+):(\d+)/; sprintf("%02d:%02d", $1, $2); end}
   end
 
   if cgi['times'] == "same"
-    game_times = ["17:45", "19:00", "20:15"] if cgi['league'] == "Sunday"
+    game_times = ["17:45", "19:00"] if cgi['league'] == "Sunday"
     game_times = ["20:15", "21:30", "22:45"] if cgi['league'] == "Monday"
     game_times = ["20:30", "21:45"] if cgi['league'] == "Tuesday"
     game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Thursday"
@@ -631,7 +675,7 @@ def parse_args(cgi, results)
       team_names = ["Camels", "Desert Dogs", "Cactus", "Oasis", "Road Runners", "Sahara Desert", "Suns", "Arabian Knights"]
     end
     if cgi['league'] == "Thursday"
-      team_names = ["Desert Tribe", "Genies", "Cobras", "Sultans", "Desert Foxes", "Desert Ravens", "Scorpions", "Danger"]
+      team_names = ["Desert Tribe", "Genies", "Cobras", "Sultans", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Teal"]
     end
     if cgi['league'] == "Friday"
       team_names = ["Lightning", "Falling Stars", "Intangibles", "Old Timers", "Otters", "Polars", "Shamrocks", "Yaks"]
@@ -640,7 +684,7 @@ def parse_args(cgi, results)
       team_names = ["Sabres", "Coconuts", "Desert Rats", "Desert Thieves"]
     end
     if cgi['league'] == "Sunday"
-      team_names = ["Coyotes", "Bandits", "Sand Lizards", "Dates", "Desert Storm", "Blades"]
+      team_names = ["Coyotes", "Sand Lizards", "Dates", "Desert Storm"]
     end
   end
 
