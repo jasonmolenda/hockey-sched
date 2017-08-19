@@ -218,8 +218,11 @@ def to_time_human(datetime)
   datetime.localtime.strftime("%l:%M")
 end
 
+def to_date_day_of_week(datetime)
+   datetime.localtime.strftime("%a")
+end
 
-def generate_report(games)
+def generate_report(games, verbose)
   # make a list of all teams seen
   teams = Array.new
   all_games_per_team = Hash.new
@@ -357,6 +360,24 @@ def generate_report(games)
           puts "             #{opponent}: #{back_to_backs[opponent].join(', ')}"
       end
     end
+
+    if verbose == true
+        puts ""
+        all_games_per_team[team].sort{|a, b| a[:time] <=> b[:time]}.each do |g| 
+           date = to_date_iso8601(g[:time])
+           day_of_week = to_date_day_of_week(g[:time])
+           time = to_time(g[:time])
+           opponent = ""
+           if g[:home] == team
+               opponent = g[:away]
+           else
+               opponent = g[:home]
+           end
+           puts "#{date} #{day_of_week} #{time} #{opponent}"
+        end
+   end
+        
+    
   
     puts ""
     puts ""
@@ -415,7 +436,7 @@ if cgi == 0
   games = ics_entries_to_games(ics_parser(get_ics_text_from_web(league_urls_thru_2012["Tuesday"])))
 # the dates for the spring/summer 2012 season:
   games = filter_daterange(games, "2012-02-18", "2012-07-13")
-  generate_report(games)
+  generate_report(games, true)
   exit true
 else
   cgi = CGI.new
@@ -473,7 +494,11 @@ else
     puts ""
     puts ""
 
-    generate_report(games)
+    verbose = false
+    if cgi.has_key?("verbose")
+      verbose = true
+    end
+    generate_report(games, verbose)
     exit true
   end
 
@@ -485,7 +510,15 @@ else
   if cgi.has_key?("io-calendar-check") && cgi.has_key?("league")
     season_to_test = cgi["io-calendar-check"]
     league = cgi["league"]
-    if season_to_test == "spring2016"
+    if season_to_test == "spring2017"
+      league_urls = league_urls_2014_and_later
+      start_date = "2017-04-01"
+      end_date = "2017-09-10"
+    elsif season_to_test == "fall2016"
+      league_urls = league_urls_2014_and_later
+      start_date = "2016-09-28"
+      end_date = "2017-03-10"
+    elsif season_to_test == "spring2016"
       league_urls = league_urls_2014_and_later
       start_date = "2016-03-27"
       end_date = "2016-09-25"
@@ -523,7 +556,11 @@ else
       puts ""
       games = ics_entries_to_games(ics_parser(get_ics_text_from_web(league_urls[league])))
       games = filter_daterange(games, start_date, end_date)
-      generate_report(games)
+      verbose = false
+      if cgi.has_key?("verbose")
+          verbose = true
+      end
+      generate_report(games, verbose)
       exit true
     end
   end
@@ -579,7 +616,11 @@ else
     puts ""
     puts ""
 
-    generate_report(games)
+    verbose = false
+    if cgi.has_key?("verbose")
+        verbose = true
+    end
+    generate_report(games, verbose)
     exit true
   end
 
