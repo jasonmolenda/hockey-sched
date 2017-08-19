@@ -29,11 +29,13 @@ def matrix_full?(mat, dim)
   return true
 end
 
-def matrix_empty_spots(mat, dim)
+# Don't allow any games to be scheduled for team_to_avoid
+# Needed to implement bye weeks for a 7-team league playing 3 games a week
+def matrix_empty_spots(mat, dim, team_to_avoid)
   res = Array.new
   1.upto(dim) do |i|
     1.upto(dim) do |j|
-      if mat[i][j] == 0
+      if mat[i][j] == 0 && i != team_to_avoid && j != team_to_avoid
         res.push([i, j]) if res.select {|a| a[0] == j && a[1] == i}.length == 0
       end
     end
@@ -61,7 +63,16 @@ end
 # play.
 
 def create_team_combinations_until_deadlocked (games, weekcount, teamcount)
-  games_per_week = teamcount / 2
+
+  # A 7 team league means that each week one team sits out.
+  if teamcount % 2 != 0 && teamcount > 2
+    bye_team = true
+    games_per_week = (teamcount - 1) / 2
+  else
+    games_per_week = teamcount / 2
+    bye_team = false
+  end
+
   matrix = Array.new
   weeknum = 1
   while weeknum <= weekcount
@@ -87,14 +98,27 @@ def create_team_combinations_until_deadlocked (games, weekcount, teamcount)
       thisweek = Array.new
       this_week_failure = false
       this_week_games = Array.new
-    
+
+      # assuming 7-team league playing 3 games a week
+      # In week 1, don't schedule team 1
+      # In week 2, don't schedule team 2
+      # ...
+      # In week 7, don't schedule team 7
+      # In week 8, don't schedule team 1
+      if bye_team == true
+        team_to_avoid_this_week = ((weeknum - 1) % teamcount) + 1
+      else
+        team_to_avoid_this_week = -1
+      end
+
   # If we're near the end, just pick out the open spots on the matrix to
   # avoid stupid deadlock problems.
-      a = matrix_empty_spots(matrix, teamcount).shuffle
+      a = matrix_empty_spots(matrix, teamcount, team_to_avoid_this_week).shuffle
       if a.length <= teamcount
         0.upto((games_per_week) - 1) do |i|
           team_a = a[i][0]
           team_b = a[i][1]
+          next if team_a == team_to_avoid_this_week || team_b == team_to_avoid_this_week
           next if thisweek[team_a] == 1 || thisweek[team_b] == 1
           this_week_games.push [team_a, team_b]
           thisweek[team_a] = 1
@@ -114,7 +138,14 @@ def create_team_combinations_until_deadlocked (games, weekcount, teamcount)
       1.upto(teamcount) {|i| thisweek[i] = 0}
       result = 1.upto(games_per_week) do
         team_a = rand(teamcount) + 1
+        while team_a == team_to_avoid_this_week
+          team_a = rand(teamcount) + 1
+        end
         team_b = rand(teamcount) + 1
+        while team_b == team_to_avoid_this_week
+          team_b = rand(teamcount) + 1
+        end
+
         retry_count = 20
         while team_a == team_b || matrix[team_a][team_b] == 1 || thisweek[team_a] == 1 || thisweek[team_b] == 1
           zerocount = 0
@@ -129,7 +160,13 @@ def create_team_combinations_until_deadlocked (games, weekcount, teamcount)
             end
           end
           team_a = thisweek_free[rand(thisweek_free.length)]
+          while team_a == team_to_avoid_this_week
+            team_a = thisweek_free[rand(thisweek_free.length)]
+          end
           team_b = thisweek_free[rand(thisweek_free.length)]
+          while team_b == team_to_avoid_this_week
+            team_b = thisweek_free[rand(thisweek_free.length)]
+          end
           retry_count += 1
           if retry_count > (teamcount * teamcount)
             this_week_failure = true
@@ -183,10 +220,26 @@ end
 # timeslots and home/away are not yet assigned.
 
 def create_team_combinations (weekcount, teamcount)
-  games_per_week = teamcount / 2
+
+  # A 7 team league means that each week one team sits out.
+  if teamcount % 2 != 0 && teamcount > 2
+    bye_team = true
+    games_per_week = (teamcount - 1) / 2
+  else
+    games_per_week = teamcount / 2
+    bye_team = false
+  end
+
   games = Array.new
 
   one_block_repeated = 0
+
+  # 7 team leagues are a mess with a strict repeating game
+  # schedule - some teams never play head to head across a
+  # season somehow.
+  if teamcount == 7
+    one_block_repeated = 0
+  end
 
 # For 4 teams and less we won't find a random (non-repeating) full-season solution
 # so just get one 3-game sequence block of games and repeat it.
@@ -256,7 +309,15 @@ end
 # with the best (lowest) score for each timeslot in a given week.
 
 def order_game_times (team_pairings, teamcount, debug)
-  gamecount = teamcount / 2
+  # A 7 team league means that each week one team sits out.
+  if teamcount % 2 != 0 && teamcount > 2
+    bye_team = true
+    gamecount = (teamcount - 1) / 2
+  else
+    gamecount = teamcount / 2
+    bye_team = false
+  end
+
   weekcount = team_pairings.size() / gamecount
 
 # the maximum number of games any team should have at any one timeslot, ideally
@@ -534,6 +595,7 @@ def parse_args(cgi, results)
 
   game_times = Array.new
   game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['times'] == "7008159301045"
+  game_times = ["17:45", "19:00", "20:15"] if cgi['times'] == "545700815"
   game_times = ["20:15", "21:30", "22:45"] if cgi['times'] == "8159301045"
   game_times = ["21:00", "22:15"] if cgi['times'] == "9001015"
   game_times = ["04:30", "05:45"] if cgi['times'] == "430545"
@@ -543,10 +605,10 @@ def parse_args(cgi, results)
   end
 
   if cgi['times'] == "same"
-    game_times = ["04:30", "05:45"] if cgi['league'] == "Sunday"
+    game_times = ["17:45", "19:00", "20:15"] if cgi['league'] == "Sunday"
     game_times = ["20:15", "21:30", "22:45"] if cgi['league'] == "Monday"
-    game_times = ["20:15", "21:30", "22:45"] if cgi['league'] == "Tuesday"
-    game_times = ["20:15", "21:30", "22:45"] if cgi['league'] == "Thursday"
+    game_times = ["20:30", "21:45"] if cgi['league'] == "Tuesday"
+    game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Thursday"
     game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Wednesday"
     game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Friday"
     game_times = ["21:00", "22:15"] if cgi['league'] == "Saturday"
@@ -560,25 +622,25 @@ def parse_args(cgi, results)
   team_names = Array.new
   if cgi['teamnames'] == "same"
     if cgi['league'] == "Monday"
-      team_names = ["Clean Solutions / Blue", "Desert Hawks / Red", "CPC Waves / Teal", "Sphinxs / Grey", "Toasters / Green", "Blue Martini / White"]
+      team_names = ["Flying Carpets", "Blue Martini", "Clean Solutions", "Desert Hawks", "Toasters", "Sphinx"]
     end
     if cgi['league'] == "Tuesday"
-      team_names = ["Desert Heat / Yellow", "Nomads / Black", "Helo Monsters / Blue", "Sultans / Red", "Cactus / Teal", "Desert Storm / Green"]
+      team_names = ["Team 1", "Team 2", "Team 3", "Team 4"]
     end
     if cgi['league'] == "Wednesday"
-      team_names = ["Oasis / Green", "Road Runners / Red", "Desert Dogs / Lite Blue", "Suns / Yellow", "Arabian Knights / Black", "Camels / Grey", "Danger / Orange", "Sahara Desert / White"]
+      team_names = ["Camels", "Desert Dogs", "Cactus", "Oasis", "Road Runners", "Sahara Desert", "Suns", "Arabian Knights"]
     end
     if cgi['league'] == "Thursday"
-      team_names = ["Cobras / Green", "Desert Ravens / White", "Desert Foxes / Grey", "Desert Tribe / Dark Blue", "Scorpions / Yellow", "Genies / Lite Blue"]
+      team_names = ["Desert Tribe", "Genies", "Cobras", "Sultans", "Desert Foxes", "Desert Ravens", "Scorpions", "Danger"]
     end
     if cgi['league'] == "Friday"
-      team_names = ["Falling Stars / White", "Polars / Yellow", "Falcons / Black", "Intangibles / Red", "Otters / Teal", "Shamrocks / Green", "Yaks / Blue", "Old Timers / Grey"]
+      team_names = ["Lightning", "Falling Stars", "Intangibles", "Old Timers", "Otters", "Polars", "Shamrocks", "Yaks"]
     end
     if cgi['league'] == "Saturday"
-      team_names = ["Eagles / Red", "Coconuts / White", "Desert Rats / Yellow", "Desert Thieves / Black"]
+      team_names = ["Sabres", "Coconuts", "Desert Rats", "Desert Thieves"]
     end
     if cgi['league'] == "Sunday"
-      team_names = ["Mirage / Yellow", "Turbans / Grey", "Coyotes / Blue", "Dates / White"]
+      team_names = ["Coyotes", "Bandits", "Sand Lizards", "Dates", "Desert Storm", "Blades"]
     end
   end
 
@@ -592,15 +654,15 @@ def parse_args(cgi, results)
     team_names = cgi['teamnames-manual-entry'].split(/[\r\n]+/)
   end
 
-  if team_names.size % 2 != 0
-    puts "Error: An uneven number of teams specified.</body></html>"
-    exit
-  end
-  if team_names.size != (game_times.size() * 2)
-    puts "team names #{team_names}"
-    puts "Error: There are #{game_times.size()} game times but only #{team_names.size()} teams names provided.</body></html>"
-    exit
-  end
+#  if team_names.size % 2 != 0
+#    puts "Error: An uneven number of teams specified.</body></html>"
+#    exit
+#  end
+#  if team_names.size != (game_times.size() * 2)
+#    puts "team names #{team_names}"
+#    puts "Error: There are #{game_times.size()} game times but only #{team_names.size()} teams names provided.</body></html>"
+#    exit
+#  end
 
   holidays = Hash.new
   cgi['holidays'].split(/[\r\n]+/).each do |holiday|
