@@ -167,7 +167,7 @@ end
 def create_team_combinations (weekcount, teamcount)
   games_per_week = teamcount / 2
   games = Array.new
-  one_block_repeated = 0
+  one_block_repeated = 1
   if teamcount <= 4
     one_block_repeated = 1
   end
@@ -257,8 +257,17 @@ def order_game_times (team_pairings, teamcount)
         score = score + gametimes[team_a][time] + gametimes[team_b][time]
 
 # Avoid teams having more than their fair share of any given timeslot
-        score = score + 30 if gametimes[team_a][time] >= max_games_per_timeslot
-        score = score + 30 if gametimes[team_b][time] >= max_games_per_timeslot
+        if gametimes[team_a][time] >= max_games_per_timeslot || gametimes[team_b][time] >= max_games_per_timeslot
+          score = score + 30
+# The late game (10:45pm) in a 3- or 4-timeslot league is very bad to have too many of
+          if (gamecount == 3 || gamecount == 4) && time == gamecount
+            score = score + 30
+          end
+# The early game (7:00pm) in a 4-timeslot league is a little inconvenient to have too many of
+          if gamecount == 4 && time == 1
+            score = score + 10
+          end
+        end
 
         if weeknum > 1 && gamecount > 2
 # if this is a 3- or 4- game league the late gametime slot is bad news,
@@ -287,21 +296,78 @@ def order_game_times (team_pairings, teamcount)
     end
 
 # Now timeslot_scores has a score for each team pair in each of the timeslots.
+# We can end up with an array of scores with no easy solutions.  e.g. for weeknum 25
+#
+#            teams 1+2  teams 6+3  teams 5+8  teams 7+4
+#timeslot 1     22        20         11         75
+#timeslot 2     52        43         74        169
+#timeslot 3     11        53         22         12
+#timeslot 4     43        12         81         82
+#
+# A good score is maybe 1/2 * weeknum .. weeknum * 2 (12-50 in this case).
+#
+# Only one team has a good score for timeslot 2, two teams for timeslot 4 (and
+# only one of them has a really good score for timeslot 4).
+#
+# Looking at this by hand, the best selection for this array is 
+#    timeslot 1   team 5+8 (score 11)
+#    timeslot 2   team 6+3 (score 43)
+#    timeslot 3   team 7+4 (score 12)
+#    timeslot 4   team 1+2 (score 43)
+#
+# and it's probably better if team 6+3 gets timeslot 4 (score 12)
+# forcing team 1+2 to get timeslot 2 (score 52).  
+
 # Give the lowest scoring team pairs the correct timeslots.
-  
+
+    print_debug_gatetime_scores = 1
+    if print_debug_gatetime_scores == 1
+      puts "<br>week number #{weeknum} score summary:"
+      printf "<pre>            "
+      timeslot_scores[1].sort do |x,y| 
+          x_team_a_b = "#{this_week_games[x[0]][0]}+#{this_week_games[x[0]][1]}"
+          y_team_a_b = "#{this_week_games[y[0]][0]}+#{this_week_games[y[0]][1]}"
+          x_team_a_b <=> y_team_a_b
+      end.each {|x| printf "team #{this_week_games[x[0]][0]}+#{this_week_games[x[0]][1]}  "}
+      printf "\n"
+      1.upto(gamecount) do |time|
+        printf "timeslot %d  ", time
+        timeslot_scores[time].sort do |x,y| 
+            x_team_a_b = "#{this_week_games[x[0]][0]}+#{this_week_games[x[0]][1]}"
+            y_team_a_b = "#{this_week_games[y[0]][0]}+#{this_week_games[y[0]][1]}"
+            x_team_a_b <=> y_team_a_b
+        end.each {|x| printf "     %3d ", x[1]}
+        printf "\n"
+      end
+      puts "</pre>"
+    end
+ 
+    game_schedule_order = Array.new
+    if gamecount == 4
+      game_schedule_order = [4, 1, 3, 2]
+    elsif gamecount == 3
+      game_schedule_order = [3, 1, 2]
+    else
+      gamecount.downto(1) { |i| game_schedule_order.push i}
+    end
+    
     played_this_week = Hash.new
-    gamecount.downto(1) do |time|
+    game_schedule_order.each do |time|
       sorted_teams = timeslot_scores[time].sort {|x,y| x[1] <=> y[1]}
-#puts "<br>for weeknum #{weeknum} timeslot #{time} scores are "
-#sorted_teams.each do |k|
-#puts "#{this_week_games[k[0]][0]}+#{this_week_games[k[0]][1]}==#{k[1]}"
-#end
+      if print_debug_gatetime_scores == 1
+        puts "<br>for weeknum #{weeknum} timeslot #{time} scores are "
+        sorted_teams.each do |k|
+        puts "#{this_week_games[k[0]][0]}+#{this_week_games[k[0]][1]}==#{k[1]}"
+        end
+      end
       sorted_teams.each do |j|
         if !played_this_week.has_key?(j[0])
           played_this_week[j[0]] = "used"
           team_a, team_b = this_week_games[j[0]][0], this_week_games[j[0]][1]
-#puts "<br>weeknum #{weeknum} timeslot #{time} #{team_a} and #{team_b} won with score #{j[1]}"
-#puts "<br>" if time == 1
+          if print_debug_gatetime_scores == 1
+            puts "<br>weeknum #{weeknum} timeslot #{time} #{team_a} and #{team_b} won with score #{j[1]}"
+            puts "<br>" if time == 1
+          end
           schedule[weeknum][time] = [team_a, team_b]
           gametimes[team_a][time] += 1
           gametimes[team_b][time] += 1
