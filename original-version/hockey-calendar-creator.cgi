@@ -650,7 +650,7 @@ def output_ics (games, first_game_day, season_end_date, holidays, game_times, te
       week_number = i / game_times.size()
       gametime = game_times[i % game_times.size()]
 
-      f.puts "<br>BEGIN:VEVENT"
+      f.puts "BEGIN:VEVENT"
       start_time = Time.iso8601("#{day.strftime}T#{gametime}:00")
       end_time = start_time + (60 * 75)
       f.puts "DTSTART;TZID=America/Los_Angeles:#{start_time.localtime.strftime("%Y%m%dT%H%M%S")}"
