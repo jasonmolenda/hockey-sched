@@ -291,7 +291,7 @@ def create_team_combinations (weekcount, teamcount)
   end
 
 # 8 team leagues seem to work out fine with a repeating schedule
-  if teamcount == 8 || teamcount == 9
+  if teamcount == 8 || teamcount == 9 || teamcount == 10
     one_block_repeated = 1
   end
 
@@ -413,7 +413,7 @@ def order_game_times (team_pairings, teamcount, debug)
         if gametimes[team_a][time] >= max_games_per_timeslot || gametimes[team_b][time] >= max_games_per_timeslot
           score = score + 30
 # The late game (10:45pm) in a 3- or 4-timeslot league is very bad to have too many of
-          if (gamecount == 3 || gamecount == 4) && time == gamecount
+          if (gamecount == 3 || gamecount == 4 || gamecount == 5) && time == gamecount
             score = score + 30
           end
 # The early game (7:00pm) in a 4-timeslot league is a little inconvenient to have too many of
@@ -507,7 +507,9 @@ def order_game_times (team_pairings, teamcount, debug)
 # the optimal timeslots for each teampair to play?
 
     game_schedule_order = Array.new
-    if gamecount == 4
+    if gamecount == 5
+      game_schedule_order = [5, 1, 4, 3, 2]
+    elsif gamecount == 4
       game_schedule_order = [4, 1, 3, 2]
     elsif gamecount == 3
       game_schedule_order = [3, 1, 2]
@@ -632,6 +634,8 @@ def parse_args(cgi, results)
   day_of_week = 0 if cgi['league'] == "Sunday"
   day_of_week = 1 if cgi['league'] == "Monday"
   day_of_week = 2 if cgi['league'] == "Tuesday"
+  day_of_week = 2 if cgi['league'] == "Tuesday-league1"
+  day_of_week = 2 if cgi['league'] == "Tuesday-league2"
   day_of_week = 3 if cgi['league'] == "Wednesday"
   day_of_week = 4 if cgi['league'] == "Thursday"
   day_of_week = 5 if cgi['league'] == "Friday"
@@ -649,12 +653,14 @@ def parse_args(cgi, results)
   end
 
   if cgi['times'] == "same"
-    game_times = ["17:45", "19:00"] if cgi['league'] == "Sunday"
+    game_times = ["17:45", "19:00", "20:15"] if cgi['league'] == "Sunday"
     game_times = ["20:15", "21:30", "22:45"] if cgi['league'] == "Monday"
-    game_times = ["20:30", "21:45"] if cgi['league'] == "Tuesday"
-    game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Thursday"
+    game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Tuesday"
+    game_times = ["19:00", "20:15"] if cgi['league'] == "Tuesday-league1"
+    game_times = ["21:30", "22:45"] if cgi['league'] == "Tuesday-league2"
     game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Wednesday"
-    game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Friday"
+    game_times = ["17:45", "19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Thursday"
+    game_times = ["20:15", "21:30", "22:45"] if cgi['league'] == "Friday"
     game_times = ["21:00", "22:15"] if cgi['league'] == "Saturday"
   end
 
@@ -666,25 +672,31 @@ def parse_args(cgi, results)
   team_names = Array.new
   if cgi['teamnames'] == "same"
     if cgi['league'] == "Monday"
-      team_names = ["Flying Carpets", "Blue Martini", "Clean Solutions", "Desert Hawks", "Toasters", "Sphinx"]
+      team_names = ["Flying Carpets", "Blue Martini", "Desert Owls", "Desert Hawks", "Toasters", "Sphinx"]
     end
     if cgi['league'] == "Tuesday"
-      team_names = ["Team 1", "Team 2", "Team 3", "Team 4"]
+      team_names = ["Molson", "BioSteel", "Harvard", "Kanter", "CCCP", "KingFishers", "Toucans", "O'Neill's"]
+    end
+    if cgi['league'] == "Tuesday-league1"
+      team_names = ["Molson", "Cobra Kai", "Hard to Watch", "Kanter"]
+    end
+    if cgi['league'] == "Tuesday-league2"
+      team_names = ["Sotasticks", "KingFishers", "Toucans", "O'Neill's"]
     end
     if cgi['league'] == "Wednesday"
       team_names = ["Camels", "Desert Dogs", "Cactus", "Oasis", "Road Runners", "Sahara Desert", "Suns", "Arabian Knights"]
     end
     if cgi['league'] == "Thursday"
-      team_names = ["Desert Tribe", "Genies", "Cobras", "Sultans", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Teal"]
+      team_names = ["Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes"]
     end
     if cgi['league'] == "Friday"
-      team_names = ["Lightning", "Falling Stars", "Intangibles", "Old Timers", "Otters", "Polars", "Shamrocks", "Yaks"]
+      team_names = ["Lightning", "Intangibles", "Old Timers", "Otters", "Polars", "Shamrocks"]
     end
     if cgi['league'] == "Saturday"
-      team_names = ["Sabres", "Coconuts", "Desert Rats", "Desert Thieves"]
+      team_names = ["Gryphons", "Anubis", "Hydra", "Minotaurs"]
     end
     if cgi['league'] == "Sunday"
-      team_names = ["Coyotes", "Sand Lizards", "Dates", "Desert Storm"]
+      team_names = ["Sand Lizards", "SuperEvil MEGACorp", "Dates", "Desert Storm", "Night Owls", "Team 6"]
     end
   end
 
@@ -757,6 +769,9 @@ end
 def output_ics (games, first_game_day, season_end_date, holidays, game_times, team_names)
   n = 1
   rootdir = "/home/molenda/molenda.us/schedules"
+  if !File.exist?(rootdir)
+      rootdir = "/tmp"
+  end
   while File.exist?("#{rootdir}/schedule-#{n}.ics")
     n = n + 1
   end
@@ -800,6 +815,10 @@ def output_ics (games, first_game_day, season_end_date, holidays, game_times, te
     end
   
     f.puts "END:VCALENDAR"
+  end
+
+  if rootdir == "/tmp" && @DEBUG == true && File.exists?("hockey-calendar-lint.cgi")
+      system ("echo 'url=#{filename}' | ./hockey-calendar-lint.cgi")
   end
 
   if File.exist?(filename)
