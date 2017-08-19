@@ -54,8 +54,11 @@ end
 # and the last game of one block and the first of the next block may have a back-to-back
 # game.  Post-processing is needed to resolve these.
 
-# Note that this function can reach a dead end and not supply the expected weekcount * (teamcount / 2)
-# matchups.  Call it repeatedly until you get a complete schedule.
+# Note that this function can deadlock and not supply the expected weekcount * (teamcount / 2)
+# matchups.  Call it repeatedly until you get a complete schedule.  Imagine a scenario near
+# the end where team 4 gets assigned to play against team 2; team 7 needs to play either team
+# 4 or 2.  Given the previous 4v2 assignment, team 7 is blocked for this round and has no one to
+# play.
 
 def create_team_combinations_until_deadlocked (games, weekcount, teamcount)
   games_per_week = teamcount / 2
@@ -163,6 +166,21 @@ def create_team_combinations_until_deadlocked (games, weekcount, teamcount)
     end
   end
 end
+
+
+# Call the deadlocking team pair generator function
+# repeatedly until we get a complete solution for the number
+# of weeks we're doing - or we hit the retry limit to avoid
+# infinite looping.  The returned array has the team pairings
+# for instance in an eight team league (4 games per week), one 
+# week in the returned array may look like 
+#
+# team_pairings[0] == [1, 5]
+# team_pairings[1] == [2, 6]
+# team_pairings[2] == [8, 7]
+# team_pairings[3] == [3, 4]
+#
+# timeslots and home/away are not yet assigned.
 
 def create_team_combinations (weekcount, teamcount)
   games_per_week = teamcount / 2
@@ -379,6 +397,10 @@ def order_game_times (team_pairings, teamcount, debug)
 # high-scoring (bad) team pair for that timeslot.
 # So the order that you pick the timeslots in is important.
 
+# FIXME instead of having the sorting algorithm look at ONE timeslot at 
+# a time, maybe look at all teams' scores for all timeslots and find
+# the optimal timeslots for each teampair to play?
+
     game_schedule_order = Array.new
     if gamecount == 4
       game_schedule_order = [4, 1, 3, 2]
@@ -441,7 +463,7 @@ end
 # home & away games.  In the output array, the first team listed
 # is "home" and the second team listed is "away.
 
-# opportunities for improvement:
+# TODO opportunities for improvement:
 
 # Make sure no team goes over 50% for home/away (possible deadlocking
 # problems)
@@ -682,6 +704,11 @@ def output_ics (games, first_game_day, season_end_date, holidays, game_times, te
 end
 
 
+###############################################################################################
+######### main part of the program starts here
+###############################################################################################
+
+
 
 puts "Content-type: text/html; charset=utf-8"
 puts ""
@@ -712,10 +739,14 @@ debug = results[:debug]
 
 puts "#{(season_end_date - season_start_date).to_i} days between start date and end date"
 
+# Count the number of weeks in this date range.
+
 first_game_day = season_start_date
 while first_game_day.wday != day_of_week
   first_game_day = first_game_day + 1
 end
+
+# Count the number of weeks that don't land on a holiday in this date range
 
 day = first_game_day
 total_weeks = 0
@@ -730,15 +761,26 @@ end
 
 puts "<br />#{total_weeks} total weeks between start and end dates.  #{total_weeks_skipping_holidays} games in this season, skipping holidays."
 
+
+# Get the array of which teams play which, in what order, for the entire
+# season.  Timeslots and home/away are not yet determined --- start by
+# fixing the head-to-heads.
+
 team_pairings = create_team_combinations(total_weeks, team_names.size())
 
-# team_pairings is an array the size of total_weeks * game_times.size()
-# Each element in total_pairings is an Array of two elements - two teams.
-# One week's game is game_times.size() entries in the array.  
-# Home/away and timeslots are not yet computed at all.
+# Now assign the timeslots for all the teams.
 
+if debug == true
+  puts "<br>"
+  0.upto(team_names.size() - 1) do  |n|
+    puts "<br>Team #{n + 1} is #{team_names[n]}"
+  end
+  puts "<br>"
+end
 
 games = order_game_times(team_pairings, team_names.size(), debug)
+
+# Now assign home & away positions.
 
 games = balance_home_and_away(games, team_names.size())
 
@@ -754,37 +796,29 @@ puts "<br>Generated schedule in .ics format is available for download at <a href
 puts "<br>Or run it through the <a href=\"http://molenda.us/cgi-bin/hockey-calendar-lint.cgi?url=#{url.gsub(/\//, "%2F")}&startdate=&enddate=&Submit=Submit\">schedule checker</a>."
 
 puts "<p>"
-day = first_game_day
-i = 0
-while day < season_end_date && i < games.size()
-  if is_holiday(day, holidays) == true
-    day = day + 7
-    next
-  end
-  week_number = i / game_times.size()
-  gametime = game_times[i % game_times.size()]
+if debug == true
+  day = first_game_day
+  i = 0
+  while day < season_end_date && i < games.size()
+    if is_holiday(day, holidays) == true
+      day = day + 7
+      next
+    end
+    week_number = i / game_times.size()
+    gametime = game_times[i % game_times.size()]
 
-#  printf("<br>%s-%02d-%02d ", day.year, day.month, day.mday)
-#  puts "week num #{week_number + 1} timelsot #{gametime} #{team_names[games[i][0].to_i - 1]} v. #{team_names[games[i][1].to_i - 1]}"
-  i = i + 1
-  if (i % game_times.size()) == 0
-    day = day + 7
-#    puts "<br>"
+    printf("<br>%s-%02d-%02d ", day.year, day.month, day.mday)
+    puts "week num #{week_number + 1} timelsot #{gametime} #{team_names[games[i][0].to_i - 1]} v. #{team_names[games[i][1].to_i - 1]}"
+    i = i + 1
+    if (i % game_times.size()) == 0
+      day = day + 7
+      puts "<br>"
+    end
   end
 end
-#i = 0
-#games.each do |g| 
-#  puts "#{g[0]}v#{g[1]}"
-#  i += 1
-## output a blank line between weeks for readability
-##  if i % gamecount == 0
-##    puts
-##  end
-#end
 
 
 puts "</body></html>"
-STDOUT.flush
 STDOUT.flush
 
 exit true
