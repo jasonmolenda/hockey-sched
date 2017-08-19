@@ -1,0 +1,75 @@
+<html>
+<body>
+
+<h1 align="center">Ice Oasis schedule creator</h1>
+
+<form action="/cgi-bin/hockey-calendar-creator.cgi" method="get">
+<h2>1. Start Date</h2>
+<p>First day of this season.  If you are creating a Wednesday calendar and the season starts on Monday August 6th, use 2013-08-06,
+the Monday date.
+<br />YYYY-MM-DD: <input type="date" name="startdate" value="2017-04-01">
+
+<h2>2. End Date</h2>
+
+<p>Last day of this regular season.  If you are creating a Wednesday calendar and the season ends on Friday January 25th, use 2014-01-25,
+the Friday date.
+<br />YYYY-MM-DD: <input type="date" name="enddate" value="2017-09-22">
+
+<h2>3. Day of week</h2>
+
+<p>
+<select name="league">
+  <option value="Monday">Monday</option>
+  <option value="Tuesday-league1">Tuesday league 1</option>
+  <option value="Tuesday-league2">Tuesday league 2</option>
+  <option value="Wednesday">Wednesday</option>
+  <option value="Thursday">Thursday</option>
+  <option value="Friday">Friday</option>
+  <option value="Saturday">Saturday</option>
+  <option value="Sunday">Sunday</option>
+</select>
+
+<h2>4. Game times</h2>
+<input type="radio" name="times" checked="true" value="same"> re-use last season's game times
+<br /> <input type="radio" name="times" value="7008159301045"> 4 games - 19:00, 20:15, 21:30, 22:45
+<br /> <input type="radio" name="times" value="545700815"> 3 games - 17:45, 19:00, 20:15
+<br /> <input type="radio" name="times" value="8159301045"> 3 games - 20:15, 21:30, 22:45
+<br /> <input type="radio" name="times" value="430545"> 2 games - 16:30, 17:45
+<br /> <input type="radio" name="times" value="9001015"> 2 games - 21:00, 22:15
+<br /> <input type="radio" name="times" value="other"> Other:  (one time per line, 24hour format e.g. 22:45)
+<br />
+<textarea name="times-manual-entry" rows="5">
+</textarea>
+
+<h2>5. Team names</h2>
+<input type="radio" checked="true" name="teamnames" value="same"> re-use last season's team names
+<br /><input type="radio" name="teamnames" value="generic"> generic names for global search-and-replacing ("team1", "team2", etc)
+<br /><input type="radio" name="teamnames" value="other"> Other: (one team name per line)
+<br /><textarea name="teamnames-manual-entry" rows="9">
+</textarea>
+
+
+<h2>6. Holidays</h2>
+<textarea name="holidays" rows="15">
+may 29
+jul 4
+sep 4
+nov 23
+nov 24
+dec 23
+dec 24
+dec 25
+dec 26
+dec 27
+dec 28
+dec 29
+dec 30
+dec 31
+</textarea>
+
+<h2>7. Almost Done!</h2>
+Hit submit:
+<input type="submit" name="Submit">
+</form>
+</body>
+</html>
