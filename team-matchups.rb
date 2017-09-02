@@ -271,38 +271,48 @@ end
         games = Array.new
         results_message = ""
 
-        one_block_repeated = 0
+        one_block_repeated = true
 
         # 7 team leagues are a mess with a strict repeating game
         # schedule - some teams never play head to head across a
         # season somehow.
         if number_of_teams == 7
-            one_block_repeated = 0
+            one_block_repeated = false
         end
 
       # For 4 teams and less we won't find a random (non-repeating) full-season solution
       # so just get one 3-game sequence block of games and repeat it.
         if number_of_teams <= 4
-            one_block_repeated = 1
+            one_block_repeated = true
         end
 
       # 8 team leagues seem to work out fine with a repeating schedule
-        if number_of_teams == 8 || number_of_teams == 9 || number_of_teams == 10
-            one_block_repeated = 1
+        if number_of_teams == 8 \
+            || number_of_teams == 9 \
+            || number_of_teams == 10 \
+            || number_of_teams == 12
+            one_block_repeated = true
         end
 
       # 6 team leagues have problems assigning timeslots for repeated schedule... random
       # seems to work better here?
         if number_of_teams == 6
-            one_block_repeated = 0
+            one_block_repeated = false
         end
 
         # If we repeat a bye week the last team will never get a bye
         if bye_team == true
-            one_block_repeated = 0
+            one_block_repeated = false
         end
 
-        if one_block_repeated == 1
+
+        if one_block_repeated == true
+            results_message = "One schedule block repeated.  "
+        else
+            results_message = "Different schedules for each block.  "
+        end
+
+        if one_block_repeated == true
             one_rotation = number_of_teams - 1
             retry_count = 0
             while games.size() != (number_of_teams - 1) * number_of_timeslots && retry_count < 1000
@@ -312,7 +322,7 @@ end
               STDERR.puts "GOT A RESULT retrycount is now #{retry_count + 1}" if @DEBUG
         #     puts "<br>retry #{retry_count} got an array with #{games.size} elements want an array of #{number_of_weeks * number_of_timeslots}"
             end
-            results_message = "It took #{retry_count} tries to generate a complete schedule."
+            results_message += "It took #{retry_count} tries to generate a complete schedule."
             if retry_count > 950
               puts "<br>Could not find a solution for this league, exiting.</body></html>"
               STDOUT.flush
@@ -327,9 +337,9 @@ end
               games = Array.new
               TeamMatchups.create_team_combinations_until_deadlocked(games, number_of_weeks, number_of_teams)
               retry_count = retry_count + 1
-        #     puts "<br>retry #{retry_count} got an array with #{games.size} elements want an array of #{number_of_weeks * number_of_timeslots}"
+             puts "<br>JSMFIXME retry #{retry_count} got an array with #{games.size} elements want an array of #{number_of_weeks * number_of_timeslots}"
             end
-            results_message = "It took #{retry_count} tries to generate a complete schedule."
+            results_message += "It took #{retry_count} tries to generate a complete schedule."
             if retry_count > 950
                 puts "<br>Could not find a solution for this league, exiting.</body></html>"
                 STDOUT.flush
@@ -360,32 +370,54 @@ end
 end
 
 if __FILE__ == $0
-    number_of_teams = 7
-    number_of_timeslots = 3
-    number_of_weeks = 14
-    results, message = TeamMatchups.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
+    examples = [ 
+                     {:teams => 6, :timeslots => 3, :weeks => 14},
+                     {:teams => 7, :timeslots => 3, :weeks => 14},
+                     {:teams => 4, :timeslots => 2, :weeks => 14},
+                     {:teams => 8, :timeslots => 4, :weeks => 20},
 
-    puts message
+                     # twelve teams super deadlocks, gotta fix it.
+                     # {:teams => 12, :timeslots => 6, :weeks => 26},
 
-    games_played = Hash.new
-    (1..number_of_teams).each { |t| games_played[t] = 0 }
+                     # The 4-timeslot 9-team combination likes to hang the program, it can't find
+                     # a solution across the entire season very well.
+                     # {:teams => 9, :timeslots => 4, :weeks => 20}, 
+               ]
 
-    puts "#{number_of_teams} teams, #{number_of_timeslots} timeslots, #{number_of_weeks} weeks"
-    (1..number_of_weeks).each do |i|
-        print "Week #{i}: #{results[i - 1][:matchups]}"
-        if results[i - 1][:byes].size() > 0 
-            print ", bye teams: #{results[i - 1][:byes].join(', ')}"
-        end
+    examples.each do |ex|
         puts ""
-        results[i - 1][:matchups].each do |pair|
-           games_played[pair[0]] += 1
-           games_played[pair[1]] += 1
-        end
-    end
+        number_of_teams = ex[:teams]
+        number_of_timeslots = ex[:timeslots]
+        number_of_weeks = ex[:weeks]
 
-    puts "# of games each team has:"
-    (1..number_of_teams).each do |t|
-        puts "#{t}: #{games_played[t]} games"
+        puts "#{number_of_teams} teams, #{number_of_timeslots} timeslots, #{number_of_weeks} weeks"
+        results, message = TeamMatchups.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
+
+        puts message
+
+        games_played = Hash.new
+        (1..number_of_teams).each { |t| games_played[t] = 0 }
+
+        (1..number_of_weeks).each do |i|
+            matchups = Array.new
+            results[i - 1][:matchups].each do |pair|
+                matchups.push("#{pair[0]} v #{pair[1]}")
+            end
+            print "Week #{i}: #{matchups.join(', ')}"
+            if results[i - 1][:byes].size() > 0 
+                print ", bye team: #{results[i - 1][:byes].join(', ')}"
+            end
+            puts ""
+            results[i - 1][:matchups].each do |pair|
+            games_played[pair[0]] += 1
+            games_played[pair[1]] += 1
+            end
+        end
+
+        puts "# of games each team has:"
+        (1..number_of_teams).each do |t|
+            puts "#{t}: #{games_played[t]} games"
+        end
     end
 
 end
