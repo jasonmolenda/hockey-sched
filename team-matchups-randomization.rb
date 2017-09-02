@@ -298,9 +298,9 @@ end
     # week.  
     # e.g. :matchups=>[[3, 5], [9, 4], [8, 7], [2, 6]]
     #
-    # It has a key :byes for teams that have a bye that week.  This will typically be one team.  
-    # e.g. :byes=>[6]
-    # or :byes=>[] for a schedule where no team has a bye.
+    # It has a key :bye for team that has a bye that week.  
+    # e.g. :bye=>6
+    # or :bye=>nil for a schedule where no team has a bye.
 
     def self.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 
@@ -399,11 +399,11 @@ end
                 teams_seen_this_week[p[0]] = true
                 teams_seen_this_week[p[1]] = true
             end
-            bye_teams = teams_seen_this_week.keys.select {|t| teams_seen_this_week[t] == false}
+            bye = teams_seen_this_week.keys.select {|t| teams_seen_this_week[t] == false}.first
 
             thisweek_hash = Hash.new
             thisweek_hash[:matchups] = games_this_week
-            thisweek_hash[:byes] = bye_teams
+            thisweek_hash[:bye] = bye
             weekly_games.push(thisweek_hash)
         end
         return weekly_games, results_message
@@ -445,8 +445,8 @@ if __FILE__ == $0
                 matchups.push("#{pair[0]} v #{pair[1]}")
             end
             print "Week #{i}: #{matchups.join(', ')}"
-            if results[i - 1][:byes].size() > 0 
-                print ", bye team: #{results[i - 1][:byes].join(', ')}"
+            if results[i - 1][:bye] != nil
+                print ", bye team: #{results[i - 1][:bye]}"
             end
             puts ""
             results[i - 1][:matchups].each do |pair|
