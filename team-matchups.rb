@@ -337,7 +337,7 @@ end
               games = Array.new
               TeamMatchups.create_team_combinations_until_deadlocked(games, number_of_weeks, number_of_teams)
               retry_count = retry_count + 1
-             puts "<br>JSMFIXME retry #{retry_count} got an array with #{games.size} elements want an array of #{number_of_weeks * number_of_timeslots}"
+            # puts "<br>JSMFIXME retry #{retry_count} got an array with #{games.size} elements want an array of #{number_of_weeks * number_of_timeslots}"
             end
             results_message += "It took #{retry_count} tries to generate a complete schedule."
             if retry_count > 950
@@ -414,9 +414,32 @@ if __FILE__ == $0
             end
         end
 
+        games_against_each_opponent = Hash.new
+        (1..number_of_teams).each do |j|
+            games_against_each_opponent[j] = Hash.new
+            (1..number_of_teams).each do |k|
+                games_against_each_opponent[j][k] = 0
+            end
+        end
+        (1..number_of_weeks).each do |i|
+            results[i - 1][:matchups].each do |pair|
+                t1 = pair[0]
+                t2 = pair[1]
+                games_against_each_opponent[t1][t2] += 1
+                games_against_each_opponent[t2][t1] += 1
+            end
+        end
+
         puts "# of games each team has:"
         (1..number_of_teams).each do |t|
-            puts "#{t}: #{games_played[t]} games"
+            print "#{t}: #{games_played[t]} games. # of games against opponents: ("
+            result = Array.new
+            games_against_each_opponent[t].keys.each do |opponent|
+                next if t == opponent
+                result.push("#{opponent}: #{games_against_each_opponent[t][opponent]} games")
+            end
+            print result.join(', ')
+            puts ""
         end
     end
 
