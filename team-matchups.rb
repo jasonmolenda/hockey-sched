@@ -2,6 +2,41 @@
 
 @DEBUG = true
 
+# Discussions of better ways to schedule the rounds:
+
+# http://nrich.maths.org/1443
+# https://courses.cs.washington.edu/courses/csep521/07wi/prj/sam_scott.pdf
+# https://en.wikipedia.org/wiki/Round-robin_tournament#Scheduling_algorithm
+# 
+# http://www.devenezia.com/downloads/round-robin/index.html
+# http://www.devenezia.com/downloads/round-robin/rounds.php
+# http://www.devenezia.com/round-robin/forum/YaBB.pl
+# http://www.devenezia.com/downloads/round-robin/Schedule-musings.pdf
+# http://www.devenezia.com/downloads/round-robin/schedule-source.html
+
+# http://www.devenezia.com/javascript/article.php/index.html
+# http://www.devenezia.com/javascript/article.php/RoundRobin1.html
+# http://www.devenezia.com/javascript/article.php/RoundRobin2.html
+#
+
+# from http://www.devenezia.com/javascript/article.php/RoundRobin2.html
+#
+#    Presume people are more used to number series starting with 1 instead of 0, and they want 
+#    the first pair of the first round to be [1,2].
+#
+#    Then, functionally, the 1'st pair of the r'th round is:
+#
+#    [  1 ,                  (r+n-1-1) % (n-1) + 2 ], r=1..n-1
+#
+#   and the i'th pair of the r'th round is:
+#
+#    [ (r+i-2) % (n-1) + 2 , (r+n-i-1) % (n-1) + 2 ], r=1..n-1, i=2..n/2
+
+# on scheduling:
+# "There is a special form of balanced round-robin called a partitioned balanced tournament design which will meet your needs"
+# http://www.devenezia.com/round-robin/forum/YaBB.pl?num=1260298921
+# http://etd.uwaterloo.ca/etd/sbbauman2001.pdf
+
 module TeamMatchups
 
     def self.initialize_matrix(mat, dim)
