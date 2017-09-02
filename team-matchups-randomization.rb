@@ -20,6 +20,7 @@
 #
 
 # from http://www.devenezia.com/javascript/article.php/RoundRobin2.html
+# a cyclic algorithm with 1-based numbers for teams :
 #
 #    Presume people are more used to number series starting with 1 instead of 0, and they want 
 #    the first pair of the first round to be [1,2].
@@ -37,7 +38,12 @@
 # http://www.devenezia.com/round-robin/forum/YaBB.pl?num=1260298921
 # http://etd.uwaterloo.ca/etd/sbbauman2001.pdf
 
-module TeamMatchups
+# keywords include 
+#   "partitioned balanced tournament design"
+#   "balanaced tournament design"
+#   "round robin tournament"
+
+module TeamMatchupsRandomization
 
     def self.initialize_matrix(mat, dim)
         1.upto(dim) do |i|
@@ -352,7 +358,7 @@ end
             retry_count = 0
             while games.size() != (number_of_teams - 1) * number_of_timeslots && retry_count < 1000
               games = Array.new
-              TeamMatchups.create_team_combinations_until_deadlocked(games, number_of_teams - 1, number_of_teams)
+              TeamMatchupsRandomization.create_team_combinations_until_deadlocked(games, number_of_teams - 1, number_of_teams)
               retry_count = retry_count + 1
               STDERR.puts "GOT A RESULT retrycount is now #{retry_count + 1}" if @DEBUG
         #     puts "<br>retry #{retry_count} got an array with #{games.size} elements want an array of #{number_of_weeks * number_of_timeslots}"
@@ -370,7 +376,7 @@ end
             retry_count = 0
             while games.size() != number_of_weeks * number_of_timeslots && retry_count < 1000
               games = Array.new
-              TeamMatchups.create_team_combinations_until_deadlocked(games, number_of_weeks, number_of_teams)
+              TeamMatchupsRandomization.create_team_combinations_until_deadlocked(games, number_of_weeks, number_of_teams)
               retry_count = retry_count + 1
             # puts "<br>JSMFIXME retry #{retry_count} got an array with #{games.size} elements want an array of #{number_of_weeks * number_of_timeslots}"
             end
@@ -426,7 +432,7 @@ if __FILE__ == $0
         number_of_weeks = ex[:weeks]
 
         puts "#{number_of_teams} teams, #{number_of_timeslots} timeslots, #{number_of_weeks} weeks"
-        results, message = TeamMatchups.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
+        results, message = TeamMatchupsRandomization.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 
         puts message
 
