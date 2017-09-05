@@ -1,5 +1,8 @@
 #! /usr/bin/ruby
 
+$LOAD_PATH << File.dirname(__FILE__)
+require 'team-matchups-circular'
+
 module TimeslotAssignmentScoreBased
 
 
@@ -16,7 +19,7 @@ module TimeslotAssignmentScoreBased
     # season_schedule[0][:matchups][1] == [2, 6]
     # season_schedule[0][:matchups][2] == [8, 7]
     # season_schedule[0][:matchups][3] == [3, 4]
-    # season_schedule[0][:timeslots = [1, 2, 3, 4]
+    # season_schedule[0][:timeslots] = [1, 2, 3, 4]
     #
     # teamcount is the number of teams in this season.
     #
@@ -31,7 +34,16 @@ module TimeslotAssignmentScoreBased
     #                                # if a league has a 10:45pm Thursday and 10:45pm Friday gameslots, they will
     #                                # have different timeslot_id's.
     #    :description   str          # description of timeslot (e.g. "10:45pm")
-
+    #
+    # 
+    # return value is an Array, 0-based, with the same number of entries (weeks) as season_schedule on input.
+    # Each element of the returned array -- one elem per week -- is a Hash
+    #
+    #   :matchups       Array   # Array of team pairs, in schedule order, size is the # of games scheduled this week
+    #   :timeslot_ids   Array   # Array of timeslot_id's for the games, in the scheduled order, size is the # of games
+    #                           # scheduled this week
+    #   :bye            int     # the team number that had a bye this week, nil if no bye
+    #
     def self.order_game_times (season_schedule, teamcount, all_timeslot_attributes, debug)
 
         weekcount = season_schedule.size()
@@ -45,7 +57,7 @@ module TimeslotAssignmentScoreBased
         # total_number_of_weeks_for_each_timeslot is a hash with the key is timeslot_id's
         # the value is the # of weeks that have that game.
         total_number_of_games_in_each_timeslot = Hash.new
-        season_schedule.each.map {|h| h[:timeslots]}.each do |timeslot_id|
+        season_schedule.each.map {|h| h[:timeslots]}.flatten.each do |timeslot_id|
             if !total_number_of_games_in_each_timeslot.has_key?(timeslot_id)
                 total_number_of_games_in_each_timeslot[timeslot_id] = 0
             end
@@ -58,6 +70,8 @@ module TimeslotAssignmentScoreBased
         total_number_of_games_in_each_timeslot.keys.each do |timeslot_id|
             max_num_games_for_each_team_in_each_timeslot[timeslot_id] = (total_number_of_games_in_each_timeslot[timeslot_id].to_f / teamcount).ceil
         end
+
+        scheduled_games_with_timeslots = Array.new
 
         # key == team number
         # value == Hash
@@ -72,12 +86,45 @@ module TimeslotAssignmentScoreBased
             end
         end
 
+        already_scheduled_games = Array.new
 
         (1..weekcount).each do |wknum|
+            puts "" if debug
+            puts "Week #{wknum}" if debug
+            puts "" if debug
             this_week_timeslots = season_schedule[wknum - 1][:timeslots]
-            this_week_team_pairs = team_pairings[wknum - 1][:matchups]
+            this_week_team_pairs = season_schedule[wknum - 1][:matchups]
+            bye = season_schedule[wknum - 1][:bye]
 
+            debug = true
+            verbose = false
+
+            this_week = TimeslotAssignmentScoreBased.compute_timeslot_scores(this_week_team_pairs, this_week_timeslots, all_timeslot_attributes, already_scheduled_games, number_of_games_scheduled_for_each_team_in_each_timeslot, max_num_games_for_each_team_in_each_timeslot, debug, verbose)
+
+            t = Hash.new
+            this_week.each_index do |timeslot_idx|
+                team_pair = this_week[timeslot_idx][:teams]
+                score = this_week[timeslot_idx][:score]
+                timeslot_id = this_week[timeslot_idx][:timeslot_id]
+                t1, t2 = team_pair[0], team_pair[1]
+                t[t1] = timeslot_id
+                t[t2] = timeslot_id
+                number_of_games_scheduled_for_each_team_in_each_timeslot[t1][timeslot_id] += 1
+                number_of_games_scheduled_for_each_team_in_each_timeslot[t2][timeslot_id] += 1
+            end
+            already_scheduled_games.push(t)
+
+            scheduled_games_with_timeslots[wknum - 1] = Hash.new
+            scheduled_games_with_timeslots[wknum - 1][:matchups] = Array.new
+            scheduled_games_with_timeslots[wknum - 1][:timeslot_ids] = Array.new
+            scheduled_games_with_timeslots[wknum - 1][:bye] = bye
+            this_week.each_index do |timeslot_idx|
+                scheduled_games_with_timeslots[wknum - 1][:matchups].push(this_week[timeslot_idx][:teams])
+                scheduled_games_with_timeslots[wknum - 1][:timeslot_ids].push(this_week[timeslot_idx][:timeslot_id])
+            end
         end
+
+        return scheduled_games_with_timeslots
     end 
 
 
@@ -189,6 +236,11 @@ module TimeslotAssignmentScoreBased
                     || number_of_games_scheduled_for_each_team_in_each_timeslot[t2][timeslot_id] >= max_num_games_for_each_team_in_each_timeslot[timeslot_id]
                     score = score + 30
                 end
+
+                ## FIXME: The scoring here doesn't make sense.  Every team is going to get a +30 for a late game,
+                ## what difference does it make.
+                ## If a team has TOO MANY late games, or they have back to back late games, that should goose the
+                ## score up a lot.  But just the fact that it's a late or early game doesn't seem score worthy...
 
                 # The late game (e.g. 10:45pm) in a 3- or 4-timeslot league is very bad to have too many of
                 if timeslot_is_late_game == true
@@ -368,18 +420,10 @@ module TimeslotAssignmentScoreBased
 end
 
 
-if __FILE__ == $0
-
+def schedule_one_week_of_games(all_timeslot_attributes)
     team_matchups = [[1,3], [4,2], [7,5], [6,8]]
     timeslot_ids = [10, 20, 30, 40]
-    all_timeslot_attributes = {
-        10 => { :late_game => false, :early_game => true, :alternate_day => false, :timeslot_id => 10, :description => "7:00pm"},
-        20 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 20, :description => "8:15pm"},
-        30 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 30, :description => "9:00pm"},
-        40 => { :late_game => true, :early_game => false, :alternate_day => false, :timeslot_id => 40, :description => "10:45pm"},
-        50 => { :late_game => false, :early_game => true, :alternate_day => true, :timeslot_id => 50, :description => "Fri 7:00pm"},
-        60 => { :late_game => true, :early_game => false, :alternate_day => true, :timeslot_id => 50, :description => "Fri 10:45pm"},
-    }
+
     already_scheduled_games = [
         { 1 => 10, 2 => 10, 3 => 20, 4 => 20, 5 => 30, 6 => 30, 7 => 40, 8 => 40},
         { 1 => 30, 2 => 40, 3 => 10, 4 => 30, 5 => 20, 6 => 40, 7 => 10, 8 => 20},
@@ -418,7 +462,179 @@ if __FILE__ == $0
             puts "Timeslot #{timeslot_idx} team pair #{team_pair} with score #{score}"
         end
     end
+end
+
+def schedule_one_season_four_team_league(all_timeslot_attributes)
+    number_of_teams = 4
+    number_of_timeslots = 2
+    number_of_weeks = 26
+    results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
+
+    season_schedule = Array.new
+    teamcount = number_of_teams
+
+    (1..number_of_weeks).each do |wknum|
+        season_schedule[wknum - 1] = Hash.new
+        season_schedule[wknum - 1][:matchups] = results[wknum - 1][:matchups]
+        season_schedule[wknum - 1][:timeslots] = [70, 80]
+        season_schedule[wknum - 1][:bye] = nil
+    end
+
+    debug = false
+
+    results = TimeslotAssignmentScoreBased.order_game_times(season_schedule, teamcount, all_timeslot_attributes, debug)
+
+    return results
+end
+
+
+def schedule_one_season_eight_team_league(all_timeslot_attributes)
+    number_of_teams = 8
+    number_of_timeslots = 4
+    number_of_weeks = 26
+    results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
+
+    season_schedule = Array.new
+    teamcount = number_of_teams
+
+    (1..number_of_weeks).each do |wknum|
+        season_schedule[wknum - 1] = Hash.new
+        season_schedule[wknum - 1][:matchups] = results[wknum - 1][:matchups]
+        season_schedule[wknum - 1][:timeslots] = [10, 20, 30, 40]
+        season_schedule[wknum - 1][:bye] = nil
+    end
+
+    debug = false
+
+    results = TimeslotAssignmentScoreBased.order_game_times(season_schedule, teamcount, all_timeslot_attributes, debug)
+
+    return results
 
 end
 
-exit true
+def dump_scheduled_games(schedule, all_timeslot_attributes)
+
+    opponents_faced_count = Hash.new
+    timeslots_played_count = Hash.new
+
+    opponents_faced = Hash.new
+    timeslots_played = Hash.new
+
+    byes_count = Hash.new
+
+    teams_seen = Hash.new
+
+    schedule.each_index do |wknum|
+        puts "wknum #{wknum + 1}"
+        schedule[wknum][:matchups].each_index do |i|
+            timeslot_id = schedule[wknum][:timeslot_ids][i]
+            team_pair = schedule[wknum][:matchups][i]
+            bye = schedule[wknum][:bye]
+            timeslot_desc = all_timeslot_attributes[timeslot_id][:description]
+            printf "   %8s #{team_pair.join(' v ')}\n", timeslot_desc
+
+            t1, t2 = team_pair
+            if !opponents_faced.has_key?(t1)
+                opponents_faced[t1] = Array.new
+            end
+            if !timeslots_played.has_key?(t1)
+                timeslots_played[t1] = Array.new
+            end
+            if !opponents_faced_count.has_key?(t1)
+                opponents_faced_count[t1] = Hash.new
+            end
+            if !opponents_faced_count[t1].has_key?(t2)
+                opponents_faced_count[t1][t2] = 0
+            end
+            if !timeslots_played_count.has_key?(t1)
+                timeslots_played_count[t1] = Hash.new
+            end
+            if !timeslots_played_count[t1].has_key?(timeslot_id)
+                timeslots_played_count[t1][timeslot_id] = 0
+            end
+            if !opponents_faced.has_key?(t2)
+                opponents_faced[t2] = Array.new
+            end
+            if !timeslots_played.has_key?(t2)
+                timeslots_played[t2] = Array.new
+            end
+
+            if !opponents_faced_count.has_key?(t2)
+                opponents_faced_count[t2] = Hash.new
+            end
+            if !opponents_faced_count[t2].has_key?(t1)
+                opponents_faced_count[t2][t1] = 0
+            end
+            if !timeslots_played_count.has_key?(t2)
+                timeslots_played_count[t2] = Hash.new
+            end
+            if !timeslots_played_count[t2].has_key?(timeslot_id)
+                timeslots_played_count[t2][timeslot_id] = 0
+            end
+
+            opponents_faced[t1].push(t2)
+            opponents_faced[t2].push(t1)
+            timeslots_played[t1].push(timeslot_id)
+            timeslots_played[t2].push(timeslot_id)
+            opponents_faced_count[t1][t2] += 1
+            opponents_faced_count[t2][t1] += 1
+            timeslots_played_count[t1][timeslot_id] += 1
+            timeslots_played_count[t2][timeslot_id] += 1
+
+            teams_seen[t1] = true
+            teams_seen[t2] = true
+
+            if bye != nil
+                if !byes_count.has_key?(bye)
+                    byes_count[bye] = 0
+                end
+                byes_count[bye] += 1
+                if !opponents_faced.has_key?(bye)
+                    opponents_faced[bye] = Array.new
+                end
+                opponents_faced[bye].push(nil)
+                teams_seen[bye] = true
+            end
+        end
+    end
+
+    puts ""
+    puts ""
+    teams_seen.keys.sort.each do |tnum|
+        puts "Report for team # #{tnum}"
+
+        puts "  Opponents: #{opponents_faced[tnum].map {|o| (o == nil) ? "bye" : o }.join(', ')}"
+        puts "  Timeslots: #{timeslots_played[tnum].map {|t| all_timeslot_attributes[t][:description]}.join(', ')}"
+
+        puts "  # of times playing against opponent:"
+        opponents_faced_count[tnum].keys.sort.each { |opponent|  puts "    team ##{opponent}:  #{opponents_faced_count[tnum][opponent]}" }
+        puts "  # of times playing in each timeslot:"
+        timeslots_played_count[tnum].keys.sort.each {|timeslot_id| puts "    #{all_timeslot_attributes[timeslot_id][:description]}: #{timeslots_played_count[tnum][timeslot_id]}" }
+        puts ""
+    end
+
+
+end
+
+if __FILE__ == $0
+
+    all_timeslot_attributes = {
+        # weeknight thursday
+        10 => { :late_game => false, :early_game => true, :alternate_day => false, :timeslot_id => 10, :description => "7:00pm"},
+        20 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 20, :description => "8:15pm"},
+        30 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 30, :description => "9:00pm"},
+        40 => { :late_game => true, :early_game => false, :alternate_day => false, :timeslot_id => 40, :description => "10:45pm"},
+        50 => { :late_game => false, :early_game => true, :alternate_day => true, :timeslot_id => 50, :description => "Fri 7:00pm"},
+        60 => { :late_game => true, :early_game => false, :alternate_day => true, :timeslot_id => 60, :description => "Fri 10:45pm"},
+
+        # weekend saturday
+        70 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 70, :description => "9:00pm"},
+        80 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 80, :description => "10:15pm"},
+    }
+
+#results = schedule_one_season_eight_team_league(all_timeslot_attributes)
+results = schedule_one_season_four_team_league(all_timeslot_attributes)
+
+dump_scheduled_games(results, all_timeslot_attributes)
+
+end
