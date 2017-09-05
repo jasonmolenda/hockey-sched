@@ -194,5 +194,7 @@ if __FILE__ == $0
             puts ""
         end
     end
-
 end
+
+
+exit true
