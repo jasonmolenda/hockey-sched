@@ -2,6 +2,7 @@
 
 $LOAD_PATH << File.dirname(__FILE__)
 require 'team-matchups-circular'
+require 'team-matchups-randomization'
 
 module TimeslotAssignmentScoreBased
 
@@ -96,7 +97,7 @@ module TimeslotAssignmentScoreBased
             this_week_team_pairs = season_schedule[wknum - 1][:matchups]
             bye = season_schedule[wknum - 1][:bye]
 
-            debug = false
+            debug = true
             verbose = false
 
             this_week = TimeslotAssignmentScoreBased.compute_timeslot_scores(this_week_team_pairs, this_week_timeslots, all_timeslot_attributes, already_scheduled_games, number_of_games_scheduled_for_each_team_in_each_timeslot, max_num_games_for_each_team_in_each_timeslot, debug, verbose)
@@ -227,24 +228,55 @@ module TimeslotAssignmentScoreBased
 
                 score = 0
 
+                t1_last_week_attribs = nil
+                t2_last_week_attribs = nil
+                t1_two_weeks_ago_attribs = nil
+                t2_two_weeks_ago_attribs = nil
+                if already_scheduled_games.size() > 0
+                    last_week_games = already_scheduled_games[-1]
+                    if last_week_games.has_key?(t1)
+                        t1_last_week_attribs = all_timeslot_attributes[last_week_games[t1]]
+                    end
+                    if last_week_games.has_key?(t2)
+                        t2_last_week_attribs = all_timeslot_attributes[last_week_games[t2]]
+                    end
+                end
+                if already_scheduled_games.size() > 1
+                    two_weeks_ago_games = already_scheduled_games[-2]
+                    if two_weeks_ago_games.has_key?(t1)
+                        t1_two_weeks_ago_attribs = all_timeslot_attributes[two_weeks_ago_games[t1]]
+                    end
+                    if two_weeks_ago_games.has_key?(t2)
+                        t2_two_weeks_ago_attribs = all_timeslot_attributes[two_weeks_ago_games[t2]]
+                    end
+                end
+
                 # The number of games each team has played in this timeslot previously is the base score
-                score += number_of_games_scheduled_for_each_team_in_each_timeslot[t1][timeslot_id] + 
-                         number_of_games_scheduled_for_each_team_in_each_timeslot[t2][timeslot_id]
+                score += (number_of_games_scheduled_for_each_team_in_each_timeslot[t1][timeslot_id] * 5) + 
+                         (number_of_games_scheduled_for_each_team_in_each_timeslot[t2][timeslot_id] * 5)
     
                 # Avoid teams having more than their fair share of any given timeslot
                 if number_of_games_scheduled_for_each_team_in_each_timeslot[t1][timeslot_id] >= max_num_games_for_each_team_in_each_timeslot[timeslot_id] \
                     || number_of_games_scheduled_for_each_team_in_each_timeslot[t2][timeslot_id] >= max_num_games_for_each_team_in_each_timeslot[timeslot_id]
-                    score = score + 30
+                    score = score + 70
+                    # too many late games???   no no no.
+                    if timeslot_is_late_game == true
+                        score += 50
+                    end
                 end
 
-                ## FIXME: The scoring here doesn't make sense.  Every team is going to get a +30 for a late game,
-                ## what difference does it make.
-                ## If a team has TOO MANY late games, or they have back to back late games, that should goose the
-                ## score up a lot.  But just the fact that it's a late or early game doesn't seem score worthy...
+                # Back to back 10:45's are very bad.
+                if timeslot_is_late_game == true &&
+                    ((t1_last_week_attribs != nil && t1_last_week_attribs[:late_game] == true) ||
+                     (t2_last_week_attribs != nil && t2_last_week_attribs[:late_game] == true))
+                    score = score + 70
+                end
 
-                # The late game (e.g. 10:45pm) in a 3- or 4-timeslot league is very bad to have too many of
-                if timeslot_is_late_game == true
-                    score = score + 30
+                #  Multiple 10:45's in three weeks are bad.
+                if timeslot_is_late_game == true &&
+                    ((t1_two_weeks_ago_attribs != nil && t1_two_weeks_ago_attribs[:late_game] == true) ||
+                     (t2_two_weeks_ago_attribs != nil && t2_two_weeks_ago_attribs[:late_game] == true))
+                    score = score + 50
                 end
 
                 # The early game (7:00pm) in a 4-timeslot league is a little inconvenient to have too many of
@@ -578,7 +610,7 @@ end
 def schedule_one_season_four_team_league(all_timeslot_attributes)
     number_of_teams = 4
     number_of_timeslots = 2
-    number_of_weeks = 26
+    number_of_weeks = 22
     results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 
     season_schedule = Array.new
@@ -599,8 +631,9 @@ end
 def schedule_one_season_six_team_league(all_timeslot_attributes)
     number_of_teams = 6
     number_of_timeslots = 3
-    number_of_weeks = 26
+    number_of_weeks = 22
     results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
+#    results, message = TeamMatchupsRandomization.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 
     season_schedule = Array.new
     teamcount = number_of_teams
@@ -620,8 +653,9 @@ end
 def schedule_one_season_seven_team_league(all_timeslot_attributes)
     number_of_teams = 7
     number_of_timeslots = 3
-    number_of_weeks = 26
+    number_of_weeks = 22
     results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
+#    results, message = TeamMatchupsRandomization.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 
     season_schedule = Array.new
     teamcount = number_of_teams
@@ -642,7 +676,7 @@ end
 def schedule_one_season_eight_team_league(all_timeslot_attributes)
     number_of_teams = 8
     number_of_timeslots = 4
-    number_of_weeks = 26
+    number_of_weeks = 22
     results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 
     season_schedule = Array.new
@@ -659,21 +693,54 @@ def schedule_one_season_eight_team_league(all_timeslot_attributes)
     return results
 end
 
+def schedule_one_season_twelve_team_league(all_timeslot_attributes)
+    number_of_teams =12 
+    number_of_timeslots = 6
+    number_of_weeks = 22
+    results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
+
+    season_schedule = Array.new
+    teamcount = number_of_teams
+
+    (1..number_of_weeks).each do |wknum|
+        season_schedule[wknum - 1] = Hash.new
+        season_schedule[wknum - 1][:matchups] = results[wknum - 1][:matchups]
+#        season_schedule[wknum - 1][:timeslots] = [20, 30, 40, 20, 30, 40]
+        season_schedule[wknum - 1][:timeslots] = [120, 130, 140, 220, 230, 240]
+        season_schedule[wknum - 1][:bye] = nil
+    end
+    debug = false
+    results = TimeslotAssignmentScoreBased.order_game_times(season_schedule, teamcount, all_timeslot_attributes, debug)
+    return results
+end
+
+
 
 if __FILE__ == $0
 
     all_timeslot_attributes = {
-        # weeknight thursday
+        # weeknight leagues
         10 => { :late_game => false, :early_game => true, :alternate_day => false, :timeslot_id => 10, :description => "7:00pm"},
         20 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 20, :description => "8:15pm"},
-        30 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 30, :description => "9:00pm"},
+        30 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 30, :description => "9:30pm"},
         40 => { :late_game => true, :early_game => false, :alternate_day => false, :timeslot_id => 40, :description => "10:45pm"},
+
+        # the thursday league where games were sched fri 7 & 10:45 alternating
         50 => { :late_game => false, :early_game => true, :alternate_day => true, :timeslot_id => 50, :description => "Fri 7:00pm"},
         60 => { :late_game => true, :early_game => false, :alternate_day => true, :timeslot_id => 60, :description => "Fri 10:45pm"},
 
         # weekend saturday
         70 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 70, :description => "9:00pm"},
         80 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 80, :description => "10:15pm"},
+
+
+        # Thursday Redwood City / San Mateo split
+        120 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 120, :description => "RWC 8:00pm"},
+        130 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 130, :description => "RWC 9:15pm"},
+        140 => { :late_game => true, :early_game => false, :alternate_day => false, :timeslot_id => 140, :description => "RWC 10:30pm"},
+        220 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 220, :description => "SM 8:00pm"},
+        230 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 230, :description => "SM 9:15pm"},
+        240 => { :late_game => true, :early_game => false, :alternate_day => false, :timeslot_id => 240, :description => "SM 10:30pm"},
     }
 
 # 4-team weekend league
@@ -687,6 +754,9 @@ results = schedule_one_season_six_team_league(all_timeslot_attributes)
 
 # 8-team weeknight league
 #results = schedule_one_season_eight_team_league(all_timeslot_attributes)
+
+# 12-team weeknight league
+#results = schedule_one_season_twelve_team_league(all_timeslot_attributes)
 
 dump_scheduled_games(results, all_timeslot_attributes)
 
