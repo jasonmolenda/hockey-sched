@@ -68,6 +68,23 @@ module TeamMatchupsCircular
         number_of_timeslots_incl_ghost = number_of_timeslots
         bye = false
 
+        # There are some numbers of teams that are extraordinarily difficult to
+        # distribute to timeslots fairly if each set of weeks (for n teams, n-1
+        # weeks) has the matchups in the same order.  For these, each time we
+        # have a new set of weeks we shuffle the order of teams.
+
+        different_team_matchups_each_set_of_weeks = false
+        if number_of_teams == 6
+            different_team_matchups_each_set_of_weeks = true
+        end
+
+        # team_numbers is an Array 0-based with the numbers of the teams in this series.
+        #
+        team_numbers = Array.new
+        (0..number_of_teams_incl_ghost - 1).each do |i|
+            team_numbers[i] = i + 1
+        end
+
         # odd # of teams means we have a bye team, we introduce a ghost team - anyone
         # who plays against ghost team has a bye.
         if number_of_teams % 2 != 0 && number_of_teams > 2
@@ -80,6 +97,15 @@ module TeamMatchupsCircular
         results_message = ""
 
         (0..number_of_weeks - 1).each do |wknum|
+
+            # At the start of each set of weeks, we may need to reshuffle the order
+            # that the teams are assigned for a well balanced time schedule.
+            if (wknum % (number_of_teams_incl_ghost - 1)) == 0
+                if different_team_matchups_each_set_of_weeks == true
+                    team_numbers = team_numbers.shuffle(random: Random.new(wknum))
+                end
+            end
+
             team_with_bye_this_week = nil
             matchups = Array.new
 
@@ -90,12 +116,12 @@ module TeamMatchupsCircular
             t2 = (wknum + number_of_teams_incl_ghost - 1 - 1) % (number_of_teams_incl_ghost - 1) + 2
             if bye == true && (t1 == number_of_teams_incl_ghost || t2 == number_of_teams_incl_ghost)
                 if t1 == number_of_teams_incl_ghost
-                    team_with_bye_this_week = t2
+                    team_with_bye_this_week = team_numbers[t2 - 1]
                 else
-                    team_with_bye_this_week = t1
+                    team_with_bye_this_week = team_numbers[t1 - 1]
                 end
             else
-                matchups.push([t1, t2])
+                matchups.push([team_numbers[t1 - 1], team_numbers[t2 - 1]])
             end
 
             (2..(number_of_teams_incl_ghost / 2)).each do |tnum|
@@ -107,12 +133,12 @@ module TeamMatchupsCircular
                 t2 = (wknum + number_of_teams_incl_ghost - tnum - 1) % (number_of_teams_incl_ghost - 1) + 2
                 if bye == true && (t1 == number_of_teams_incl_ghost || t2 == number_of_teams_incl_ghost)
                     if t1 == number_of_teams_incl_ghost
-                        team_with_bye_this_week = t2
+                        team_with_bye_this_week = team_numbers[t2 - 1]
                     else
-                        team_with_bye_this_week = t1
+                        team_with_bye_this_week = team_numbers[t1 - 1]
                     end
                 else
-                    matchups.push([t1, t2])
+                    matchups.push([team_numbers[t1 - 1], team_numbers[t2 - 1]])
                 end
             end
             weekly_games.push({:matchups => matchups, :bye => team_with_bye_this_week})
@@ -123,14 +149,14 @@ end
 
 if __FILE__ == $0
     examples = [ 
-                     {:teams => 4, :timeslots => 2, :weeks => 14},
-                     {:teams => 6, :timeslots => 3, :weeks => 14},
-                     {:teams => 7, :timeslots => 3, :weeks => 14},
-                     {:teams => 8, :timeslots => 4, :weeks => 20},
+                     {:teams => 4, :timeslots => 2, :weeks => 12},
+                     {:teams => 6, :timeslots => 3, :weeks => 15},
+                     {:teams => 7, :timeslots => 3, :weeks => 18},
+                     {:teams => 8, :timeslots => 4, :weeks => 21},
 
-                      {:teams => 12, :timeslots => 6, :weeks => 26},
+                      {:teams => 12, :timeslots => 6, :weeks => 22},
 
-                      {:teams => 9, :timeslots => 4, :weeks => 20}, 
+                      {:teams => 9, :timeslots => 4, :weeks => 24}, 
                ]
 
     examples.each do |ex|
