@@ -74,7 +74,7 @@ module TeamMatchupsCircular
         # have a new set of weeks we shuffle the order of teams.
 
         different_team_matchups_each_set_of_weeks = false
-        if number_of_teams == 6
+        if number_of_teams == 6 || number_of_teams == 7 || number_of_teams == 8
             different_team_matchups_each_set_of_weeks = true
         end
 
