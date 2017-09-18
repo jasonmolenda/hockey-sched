@@ -109,8 +109,7 @@ module TeamMatchupsCircular
             # that the teams are assigned for a well balanced time schedule.
             if (wknum % (number_of_teams_incl_ghost - 1)) == 0
                 if different_team_matchups_each_set_of_weeks == true
-#                    team_numbers = team_numbers.shuffle(random: Random.new(wknum))
-                    team_numbers = team_numbers.shuffle()
+                    team_numbers = team_numbers.shuffle(random: Random.new(wknum))
                 end
             end
 
