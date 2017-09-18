@@ -4,6 +4,14 @@ $LOAD_PATH << File.dirname(__FILE__)
 require 'team-matchups-circular'
 require 'team-matchups-randomization'
 
+# Schedules are created in 4 steps, in this order:
+#
+# 1. Team versus Team pairings
+# 2. Timeslot assignments
+# 3. Home/away assignment
+# 4. Rink assignments (if multiple rinks)
+
+
 module TimeslotAssignmentScoreBased
 
 
@@ -735,12 +743,12 @@ if __FILE__ == $0
 
 
         # Thursday Redwood City / San Mateo split
-        120 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 120, :description => "RWC 8:00pm"},
-        130 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 130, :description => "RWC 9:15pm"},
-        140 => { :late_game => true, :early_game => false, :alternate_day => false, :timeslot_id => 140, :description => "RWC 10:30pm"},
-        220 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 220, :description => "SM 8:00pm"},
-        230 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 230, :description => "SM 9:15pm"},
-        240 => { :late_game => true, :early_game => false, :alternate_day => false, :timeslot_id => 240, :description => "SM 10:30pm"},
+        120 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 120, :description => "RWC 8:00pm", :rink => "RWC"},
+        130 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 130, :description => "RWC 9:15pm", :rink => "RWC"},
+        140 => { :late_game => true, :early_game => false, :alternate_day => false, :timeslot_id => 140, :description => "RWC 10:30pm", :rink => "RWC"},
+        220 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 220, :description => "SM 8:00pm", :rink => "SM"},
+        230 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 230, :description => "SM 9:15pm", :rink => "SM"},
+        240 => { :late_game => true, :early_game => false, :alternate_day => false, :timeslot_id => 240, :description => "SM 10:30pm", :rink => "SM"},
     }
 
     number_of_teams_to_schedule = 12

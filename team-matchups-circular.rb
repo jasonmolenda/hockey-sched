@@ -2,6 +2,13 @@
 
 @DEBUG = true
 
+# Schedules are created in 4 steps, in this order:
+#
+# 1. Team versus Team pairings
+# 2. Timeslot assignments
+# 3. Home/away assignment
+# 4. Rink assignments (if multiple rinks)
+
 # Discussions of better ways to schedule the rounds:
 
 # http://nrich.maths.org/1443
@@ -102,7 +109,8 @@ module TeamMatchupsCircular
             # that the teams are assigned for a well balanced time schedule.
             if (wknum % (number_of_teams_incl_ghost - 1)) == 0
                 if different_team_matchups_each_set_of_weeks == true
-                    team_numbers = team_numbers.shuffle(random: Random.new(wknum))
+#                    team_numbers = team_numbers.shuffle(random: Random.new(wknum))
+                    team_numbers = team_numbers.shuffle()
                 end
             end
 

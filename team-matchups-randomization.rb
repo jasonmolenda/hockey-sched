@@ -2,6 +2,14 @@
 
 @DEBUG = true
 
+# Schedules are created in 4 steps, in this order:
+#
+# 1. Team versus Team pairings
+# 2. Timeslot assignments
+# 3. Home/away assignment
+# 4. Rink assignments (if multiple rinks)
+
+
 # Discussions of better ways to schedule the rounds:
 
 # http://nrich.maths.org/1443
