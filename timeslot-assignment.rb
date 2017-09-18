@@ -97,7 +97,7 @@ module TimeslotAssignmentScoreBased
             this_week_team_pairs = season_schedule[wknum - 1][:matchups]
             bye = season_schedule[wknum - 1][:bye]
 
-            debug = true
+            debug = false
             verbose = false
 
             this_week = TimeslotAssignmentScoreBased.compute_timeslot_scores(this_week_team_pairs, this_week_timeslots, all_timeslot_attributes, already_scheduled_games, number_of_games_scheduled_for_each_team_in_each_timeslot, max_num_games_for_each_team_in_each_timeslot, debug, verbose)
@@ -610,7 +610,7 @@ end
 def schedule_one_season_four_team_league(all_timeslot_attributes)
     number_of_teams = 4
     number_of_timeslots = 2
-    number_of_weeks = 22
+    number_of_weeks = (number_of_teams - 1) * 3
     results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 
     season_schedule = Array.new
@@ -631,7 +631,7 @@ end
 def schedule_one_season_six_team_league(all_timeslot_attributes)
     number_of_teams = 6
     number_of_timeslots = 3
-    number_of_weeks = 22
+    number_of_weeks = (number_of_teams - 1) * 3
     results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 #    results, message = TeamMatchupsRandomization.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 
@@ -653,7 +653,7 @@ end
 def schedule_one_season_seven_team_league(all_timeslot_attributes)
     number_of_teams = 7
     number_of_timeslots = 3
-    number_of_weeks = 22
+    number_of_weeks = (number_of_teams - 1) * 3
     results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 #    results, message = TeamMatchupsRandomization.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 
@@ -676,7 +676,7 @@ end
 def schedule_one_season_eight_team_league(all_timeslot_attributes)
     number_of_teams = 8
     number_of_timeslots = 4
-    number_of_weeks = 22
+    number_of_weeks = (number_of_teams - 1) * 3
     results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 
     season_schedule = Array.new
@@ -696,7 +696,7 @@ end
 def schedule_one_season_twelve_team_league(all_timeslot_attributes)
     number_of_teams =12 
     number_of_timeslots = 6
-    number_of_weeks = 22
+    number_of_weeks = (number_of_teams - 1) * 3
     results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
 
     season_schedule = Array.new
@@ -743,20 +743,25 @@ if __FILE__ == $0
         240 => { :late_game => true, :early_game => false, :alternate_day => false, :timeslot_id => 240, :description => "SM 10:30pm"},
     }
 
-# 4-team weekend league
-#results = schedule_one_season_four_team_league(all_timeslot_attributes)
+    number_of_teams_to_schedule = 12
+    if ARGV.size() > 0
+        number_of_teams_to_schedule = ARGV[0].to_i
+    end
 
-# 6-team weeknight league with one bye team
-results = schedule_one_season_six_team_league(all_timeslot_attributes)
-
-# 7-team weeknight league with one bye team
-#results = schedule_one_season_seven_team_league(all_timeslot_attributes)
-
-# 8-team weeknight league
-#results = schedule_one_season_eight_team_league(all_timeslot_attributes)
-
-# 12-team weeknight league
-#results = schedule_one_season_twelve_team_league(all_timeslot_attributes)
+    if number_of_teams_to_schedule == 4
+        results = schedule_one_season_four_team_league(all_timeslot_attributes)
+    elsif number_of_teams_to_schedule == 6
+        results = schedule_one_season_six_team_league(all_timeslot_attributes)
+    elsif number_of_teams_to_schedule == 7
+        results = schedule_one_season_seven_team_league(all_timeslot_attributes)
+    elsif number_of_teams_to_schedule == 8
+        results = schedule_one_season_eight_team_league(all_timeslot_attributes)
+    elsif number_of_teams_to_schedule == 12
+        results = schedule_one_season_twelve_team_league(all_timeslot_attributes)
+    else
+        puts "Unrecognized number of teams to schedule, doing nothing."
+        exit
+    end
 
 dump_scheduled_games(results, all_timeslot_attributes)
 
