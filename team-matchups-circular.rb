@@ -54,25 +54,22 @@ module TeamMatchupsCircular
 
 
 
-    # Arguments are the # of teams in the league and the # of timeslots that are
-    # scheduled each week.
-    #
-    # Returns two values -- an array and a string message about how many retries it took.
-    #
-    # Returned Array has one entry per week of the schedule.
-    #
-    # Each week is a Hash.  It has a key :matchups which is an array.  The array is the # of game times that 
-    # week.  
-    # e.g. :matchups=>[[3, 5], [9, 4], [8, 7], [2, 6]]
-    #
-    # It has a key :bye for team that has a bye that week.  
-    # e.g. :bye=>6
-    # or :bye=>nil for a schedule where no team has a bye.
+    # This method takes a schedule argument and fills in the [:weeks] array with
+    # the initial [:teampair] entries for each week's games.
+    # The schedule must already have :teamcount, :gamecount, and :weekcount filled
+    # in at this point.
+    # Any exiting :weeks entry in the schedule will be overwritten.
+    # 
+    # See the README.md for more details about the structure of schedule.
 
-    def self.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
+    def self.get_team_matchups(schedule)
+        teamcount = schedule[:teamcount]
+        gamecount = schedule[:gamecount]
+        weekcount = schedule[:weekcount]
+        schedule[:weeks] = Array.new
 
-        number_of_teams_incl_ghost = number_of_teams
-        number_of_timeslots_incl_ghost = number_of_timeslots
+        number_of_teams_incl_ghost = teamcount
+        number_of_timeslots_incl_ghost = gamecount
         bye = false
 
         # There are some numbers of teams that are extraordinarily difficult to
@@ -81,7 +78,7 @@ module TeamMatchupsCircular
         # have a new set of weeks we shuffle the order of teams.
 
         different_team_matchups_each_set_of_weeks = false
-        if number_of_teams == 6 || number_of_teams == 7 || number_of_teams == 8
+        if teamcount == 6 || teamcount == 7 || teamcount == 8
             different_team_matchups_each_set_of_weeks = true
         end
 
@@ -94,16 +91,13 @@ module TeamMatchupsCircular
 
         # odd # of teams means we have a bye team, we introduce a ghost team - anyone
         # who plays against ghost team has a bye.
-        if number_of_teams % 2 != 0 && number_of_teams > 2
+        if teamcount % 2 != 0 && teamcount > 2
             number_of_teams_incl_ghost += 1
             number_of_timeslots_incl_ghost += 1
             bye = true
         end
 
-        weekly_games = Array.new
-        results_message = ""
-
-        (0..number_of_weeks - 1).each do |wknum|
+        (0..weekcount - 1).each do |wknum|
 
             # At the start of each set of weeks, we may need to reshuffle the order
             # that the teams are assigned for a well balanced time schedule.
@@ -128,7 +122,7 @@ module TeamMatchupsCircular
                     team_with_bye_this_week = team_numbers[t1 - 1]
                 end
             else
-                matchups.push([team_numbers[t1 - 1], team_numbers[t2 - 1]])
+                matchups.push({ :teampair => [team_numbers[t1 - 1], team_numbers[t2 - 1]] })
             end
 
             (2..(number_of_teams_incl_ghost / 2)).each do |tnum|
@@ -145,68 +139,61 @@ module TeamMatchupsCircular
                         team_with_bye_this_week = team_numbers[t1 - 1]
                     end
                 else
-                    matchups.push([team_numbers[t1 - 1], team_numbers[t2 - 1]])
+                    matchups.push({ :teampair => [team_numbers[t1 - 1], team_numbers[t2 - 1]] })
                 end
             end
-            weekly_games.push({:matchups => matchups, :bye => team_with_bye_this_week})
+            schedule[:weeks].push({:games => matchups, :bye => team_with_bye_this_week})
         end
-        return weekly_games, results_message
     end
 end
 
 if __FILE__ == $0
     examples = [ 
-                     {:teams => 4, :timeslots => 2, :weeks => 12},
-                     {:teams => 6, :timeslots => 3, :weeks => 15},
-                     {:teams => 7, :timeslots => 3, :weeks => 18},
-                     {:teams => 8, :timeslots => 4, :weeks => 21},
+                     {:teamcount => 4, :gamecount => 2, :weekcount => 12},
+                     {:teamcount => 6, :gamecount => 3, :weekcount => 15},
+                     {:teamcount => 7, :gamecount => 3, :weekcount => 18},
+                     {:teamcount => 8, :gamecount => 4, :weekcount => 21},
 
-                      {:teams => 12, :timeslots => 6, :weeks => 22},
+                      {:teamcount => 12, :gamecount => 6, :weekcount => 22},
 
-                      {:teams => 9, :timeslots => 4, :weeks => 24}, 
+                      {:teamcount => 9, :gamecount => 4, :weekcount => 24}, 
                ]
 
     examples.each do |ex|
         puts ""
-        number_of_teams = ex[:teams]
-        number_of_timeslots = ex[:timeslots]
-        number_of_weeks = ex[:weeks]
-
-        puts "#{number_of_teams} teams, #{number_of_timeslots} timeslots, #{number_of_weeks} weeks"
-        results, message = TeamMatchupsCircular.get_team_matchups(number_of_teams, number_of_timeslots, number_of_weeks)
-
-        puts message
+        puts "#{ex[:teamcount]} teams, #{ex[:gamecount]} timeslots, #{ex[:weekcount]} weeks"
+        TeamMatchupsCircular.get_team_matchups(ex)
 
         games_played = Hash.new
-        (1..number_of_teams).each { |t| games_played[t] = 0 }
+        (1..ex[:teamcount]).each { |t| games_played[t] = 0 }
 
-        (1..number_of_weeks).each do |i|
+        (1..ex[:weekcount]).each do |i|
             matchups = Array.new
-            results[i - 1][:matchups].each do |pair|
-                matchups.push("#{pair[0]} v #{pair[1]}")
+            ex[:weeks][i - 1][:games].each do |game|
+                matchups.push("#{game[:teampair][0]} v #{game[:teampair][1]}")
             end
             print "Week #{i}: #{matchups.join(', ')}"
-            if results[i - 1][:bye] != nil
-                print ", bye team: #{results[i - 1][:bye]}"
+            if ex[:weeks][i - 1][:bye] != nil
+                print ", bye team: #{ex[:weeks][i - 1][:bye]}"
             end
             puts ""
-            results[i - 1][:matchups].each do |pair|
-            games_played[pair[0]] += 1
-            games_played[pair[1]] += 1
+            ex[:weeks][i - 1][:games].each do |game|
+            games_played[game[:teampair][0]] += 1
+            games_played[game[:teampair][1]] += 1
             end
         end
 
         games_against_each_opponent = Hash.new
-        (1..number_of_teams).each do |j|
+        (1..ex[:teamcount]).each do |j|
             games_against_each_opponent[j] = Hash.new
-            (1..number_of_teams).each do |k|
+            (1..ex[:teamcount]).each do |k|
                 games_against_each_opponent[j][k] = 0
             end
         end
-        (1..number_of_weeks).each do |i|
-            results[i - 1][:matchups].each do |pair|
-                t1 = pair[0]
-                t2 = pair[1]
+        (1..ex[:weekcount]).each do |i|
+            ex[:weeks][i - 1][:games].each do |game|
+                t1 = game[:teampair][0]
+                t2 = game[:teampair][1]
                 if t1 == t2
                     puts "ERROR: in week # #{i} team #{t1} plays itself"
                 end
@@ -216,7 +203,7 @@ if __FILE__ == $0
         end
 
         puts "# of games each team has:"
-        (1..number_of_teams).each do |t|
+        (1..ex[:teamcount]).each do |t|
             print "#{t}: #{games_played[t]} games. # of games against opponents: ("
             result = Array.new
             games_against_each_opponent[t].keys.each do |opponent|
