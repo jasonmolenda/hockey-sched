@@ -66,8 +66,8 @@ The keys are `timeslot_id`s, the values are a hash with these keys:
 
 The keys are `rink_id`s, the values are a hash with these keys:
 
-`:name_short` => The short name of the rink, for including in calendar titles.
+`:short_name` => The short name of the rink, for including in calendar titles.
 
-`:name_long` => Longer name of the rink.
+`:long_name` => Longer name of the rink.
 
 `:address` => Address of the rink for including as a Location entry in calendar entries.

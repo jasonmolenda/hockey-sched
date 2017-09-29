@@ -138,7 +138,7 @@ module TeamMatchupsCircular
                     team_with_bye_this_week = team_numbers[t1 - 1]
                 end
             else
-                matchups.push({ :teampair => [team_numbers[t1 - 1], team_numbers[t2 - 1]] })
+                matchups.push([team_numbers[t1 - 1], team_numbers[t2 - 1]] )
             end
 
             (2..(number_of_teams_incl_ghost / 2)).each do |tnum|
@@ -155,7 +155,7 @@ module TeamMatchupsCircular
                         team_with_bye_this_week = team_numbers[t1 - 1]
                     end
                 else
-                    matchups.push({ :teampair => [team_numbers[t1 - 1], team_numbers[t2 - 1]] })
+                    matchups.push( [team_numbers[t1 - 1], team_numbers[t2 - 1]] )
                 end
             end
             schedule[:weeks][wknum][:team_matchups] = matchups
@@ -193,17 +193,17 @@ if __FILE__ == $0
 
         (1..ex[:weekcount]).each do |i|
             matchups = Array.new
-            ex[:weeks][i - 1][:team_matchups].each do |game|
-                matchups.push("#{game[:teampair][0]} v #{game[:teampair][1]}")
+            ex[:weeks][i - 1][:team_matchups].each do |pair|
+                matchups.push("#{pair[0]} v #{pair[1]}")
             end
             print "Week #{i}: #{matchups.join(', ')}"
             if ex[:weeks][i - 1][:bye] != nil
                 print ", bye team: #{ex[:weeks][i - 1][:bye]}"
             end
             puts ""
-            ex[:weeks][i - 1][:team_matchups].each do |game|
-            games_played[game[:teampair][0]] += 1
-            games_played[game[:teampair][1]] += 1
+            ex[:weeks][i - 1][:team_matchups].each do |pair|
+            games_played[pair[0]] += 1
+            games_played[pair[1]] += 1
             end
         end
 
@@ -215,9 +215,9 @@ if __FILE__ == $0
             end
         end
         (1..ex[:weekcount]).each do |i|
-            ex[:weeks][i - 1][:team_matchups].each do |game|
-                t1 = game[:teampair][0]
-                t2 = game[:teampair][1]
+            ex[:weeks][i - 1][:team_matchups].each do |pair|
+                t1 = pair[0]
+                t2 = pair[1]
                 if t1 == t2
                     puts "ERROR: in week # #{i} team #{t1} plays itself"
                 end
