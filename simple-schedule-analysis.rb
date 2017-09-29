@@ -12,9 +12,12 @@ module SimpleScheduleAnalysis
         timeslots_played = Hash.new
         rinks_played = Hash.new
 
-        byes_count = Hash.new
+        home_games = Hash.new(0)
+        away_games = Hash.new(0)
 
-        teams_seen = Hash.new
+        byes_count = Hash.new(0)
+
+        teams_seen = Hash.new(0)
 
         schedule[:weeks].each_index do |wknum|
             puts "wknum #{wknum + 1}"
@@ -22,6 +25,8 @@ module SimpleScheduleAnalysis
                 timeslot_id = schedule[:weeks][wknum][:games][gamenum][:timeslot_id]
                 rink_id = schedule[:weeks][wknum][:games][gamenum][:rink_id]
                 team_pair = schedule[:weeks][wknum][:games][gamenum][:teampair]
+                home = schedule[:weeks][wknum][:games][gamenum][:home]
+                away = schedule[:weeks][wknum][:games][gamenum][:away]
                 timeslot_desc = schedule[:timeslots][timeslot_id][:description]
                 if schedule[:rinkcount] > 1
                     printf "  %-4s %8s #{team_pair.join(' v ')}\n", schedule[:rinks][rink_id][:short_name], timeslot_desc
@@ -86,6 +91,11 @@ module SimpleScheduleAnalysis
                     rinks_played_count[t2][rink_id] = 0
                 end
 
+                if away != nil && home != nil
+                    away_games[away] += 1
+                    home_games[home] += 1
+                end
+                
                 opponents_faced[t1].push(t2)
                 opponents_faced[t2].push(t1)
                 rinks_played[t1].push(rink_id)
@@ -107,9 +117,6 @@ module SimpleScheduleAnalysis
             bye = schedule[:weeks][wknum][:bye]
             if bye != nil
                 puts "     bye:  team #{bye}"
-                if !byes_count.has_key?(bye)
-                    byes_count[bye] = 0
-                end
                 byes_count[bye] += 1
                 if !opponents_faced.has_key?(bye)
                     opponents_faced[bye] = Array.new
@@ -147,6 +154,13 @@ module SimpleScheduleAnalysis
                     schedule[:rinks][rink_id][:long_name], 
                     rinks_played_count[tnum][rink_id]
             end
+
+            # the caller may not have done home/away assignments yet
+            if home_games.size() > 0
+                puts "  # of home games: #{home_games[tnum]}"
+                puts "  # of away games: #{away_games[tnum]}"
+            end
+
             puts ""
         end
     end
