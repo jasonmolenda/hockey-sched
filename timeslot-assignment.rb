@@ -3,6 +3,7 @@
 $LOAD_PATH << File.dirname(__FILE__)
 require 'team-matchups-circular'
 require 'team-matchups-randomization'
+require 'create-simple-empty-schedule'
 
 # Schedules are created in 4 steps, in this order:
 #
@@ -43,6 +44,11 @@ module TimeslotAssignmentScoreBased
 
         if !schedule.has_key?(:rinkcount)
             puts "ERROR: schedule is missing a :rinkcount key"
+            exit true
+        end
+
+        if !schedule.has_key?(:rinks)
+            puts "ERROR: schedule is missing a :rinks key"
             exit true
         end
 
@@ -535,7 +541,7 @@ def schedule_one_week_of_games(all_timeslot_attributes)
     end
 end
 
-def dump_scheduled_games(schedule, all_timeslot_attributes, all_rink_attributes)
+def dump_scheduled_games(schedule)
 
     opponents_faced_count = Hash.new
     timeslots_played_count = Hash.new
@@ -555,7 +561,7 @@ def dump_scheduled_games(schedule, all_timeslot_attributes, all_rink_attributes)
             timeslot_id = schedule[:weeks][wknum][:games][gamenum][:timeslot_id]
             rink_id = schedule[:weeks][wknum][:games][gamenum][:rink_id]
             team_pair = schedule[:weeks][wknum][:games][gamenum][:teampair]
-            timeslot_desc = all_timeslot_attributes[timeslot_id][:description]
+            timeslot_desc = schedule[:timeslots][timeslot_id][:description]
             if schedule[:rinkcount] > 1
                 printf "  %-4s %8s #{team_pair.join(' v ')}\n", schedule[:rinks][rink_id][:short_name], timeslot_desc
             else
@@ -658,7 +664,7 @@ def dump_scheduled_games(schedule, all_timeslot_attributes, all_rink_attributes)
         puts "Report for team # #{tnum}"
 
         puts "  Opponents: #{opponents_faced[tnum].map {|o| (o == nil) ? "bye" : o }.join(', ')}"
-        puts "  Timeslots: #{timeslots_played[tnum].map {|t| all_timeslot_attributes[t][:description]}.join(', ')}"
+        puts "  Timeslots: #{timeslots_played[tnum].map {|t| schedule[:timeslots][t][:description]}.join(', ')}"
         if schedule[:rinkcount] > 1
             puts "  Rinks: #{rinks_played[tnum].map {|r| schedule[:rinks][r][:short_name]}.join(', ')}"
         end
@@ -671,7 +677,7 @@ def dump_scheduled_games(schedule, all_timeslot_attributes, all_rink_attributes)
         puts "  # of times playing in each timeslot:"
         timeslots_played_count[tnum].keys.sort.each do |timeslot_id| 
             printf "    %7s: %d\n", 
-                all_timeslot_attributes[timeslot_id][:description], 
+                schedule[:timeslots][timeslot_id][:description], 
                 timeslots_played_count[tnum][timeslot_id]
         end
         puts "  # of times playing at each rink:"
@@ -684,42 +690,9 @@ def dump_scheduled_games(schedule, all_timeslot_attributes, all_rink_attributes)
     end
 end
 
-def create_simple_empty_schedule (teamcount, weekcount, gamecount, timeslot_ids, rink_ids, all_timeslots, all_rinks)
-    schedule = Hash.new
-    schedule[:teamcount] = teamcount
-    schedule[:weekcount] = weekcount
-    schedule[:gamecount] = gamecount
-    schedule[:timeslots] = all_timeslots
-    schedule[:rinks] = all_rinks
-    schedule[:rinkcount] = rink_ids.sort.uniq.size()
-    schedule[:weeks] = Array.new
-    if timeslot_ids.size() != gamecount
-        puts "create_simple_empty_schedule given bad insufficient number of timeslot id's for a #{gamecount} game schedule - only given #{timeslot_ids.size()} timeslots"
-        exit true
-    end
-    if rink_ids.size() != gamecount
-        puts "create_simple_empty_schedule given bad insufficient number of rink id's for a #{gamecount} game schedule - only given #{rink_ids.size()} rinks"
-        exit true
-    end
-    0.upto(weekcount - 1).each do |wknum|
-        schedule[:weeks][wknum] = Hash.new
-        schedule[:weeks][wknum][:games] = Array.new
-        0.upto(gamecount - 1).each do |gamenum|
-            schedule[:weeks][wknum][:games][gamenum] = Hash.new
-            schedule[:weeks][wknum][:games][gamenum][:timeslot_id] = timeslot_ids[gamenum]
-            schedule[:weeks][wknum][:games][gamenum][:rink_id] = rink_ids[gamenum]
-        end
-    end
 
-    return schedule
-end
-
-
-def schedule_one_season_four_team_league(all_timeslot_attributes, all_rink_attributes)
-    number_of_teams = 4
-    number_of_timeslots = 2
-    number_of_weeks = (number_of_teams - 1) * 3
-    schedule = create_simple_empty_schedule(number_of_teams, number_of_weeks, number_of_timeslots, [70, 80], [1, 1], all_timeslot_attributes, all_rink_attributes)
+def schedule_one_season_four_team_league()
+    schedule = CreateSimpleEmptySchedule.create_simple_four_team_empty_schedule()
 
     TeamMatchupsCircular.get_team_matchups(schedule)
 
@@ -728,11 +701,8 @@ def schedule_one_season_four_team_league(all_timeslot_attributes, all_rink_attri
     return schedule
 end
 
-def schedule_one_season_six_team_league(all_timeslot_attributes, all_rink_attributes)
-    number_of_teams = 6
-    number_of_timeslots = 3
-    number_of_weeks = (number_of_teams - 1) * 3
-    schedule = create_simple_empty_schedule(number_of_teams, number_of_weeks, number_of_timeslots, [20, 30, 40], [1, 1, 1], all_timeslot_attributes, all_rink_attributes)
+def schedule_one_season_six_team_league()
+    schedule = CreateSimpleEmptySchedule.create_simple_six_team_empty_schedule()
 
     TeamMatchupsCircular.get_team_matchups(schedule)
 
@@ -741,11 +711,8 @@ def schedule_one_season_six_team_league(all_timeslot_attributes, all_rink_attrib
     return schedule
 end
 
-def schedule_one_season_seven_team_league(all_timeslot_attributes, all_rink_attributes)
-    number_of_teams = 7
-    number_of_timeslots = 3
-    number_of_weeks = (number_of_teams - 1) * 3
-    schedule = create_simple_empty_schedule(number_of_teams, number_of_weeks, number_of_timeslots, [20, 30, 40], [1, 1, 1], all_timeslot_attributes, all_rink_attributes)
+def schedule_one_season_seven_team_league()
+    schedule = CreateSimpleEmptySchedule.create_simple_seven_team_empty_schedule()
 
     TeamMatchupsCircular.get_team_matchups(schedule)
 
@@ -754,11 +721,8 @@ def schedule_one_season_seven_team_league(all_timeslot_attributes, all_rink_attr
     return schedule
 end
 
-def schedule_one_season_eight_team_league(all_timeslot_attributes, all_rink_attributes)
-    number_of_teams = 8
-    number_of_timeslots = 4
-    number_of_weeks = (number_of_teams - 1) * 3
-    schedule = create_simple_empty_schedule(number_of_teams, number_of_weeks, number_of_timeslots, [10, 20, 30, 40], [1, 1, 1, 1], all_timeslot_attributes, all_rink_attributes)
+def schedule_one_season_eight_team_league()
+    schedule = CreateSimpleEmptySchedule.create_simple_eight_team_empty_schedule()
 
     TeamMatchupsCircular.get_team_matchups(schedule)
 
@@ -767,11 +731,8 @@ def schedule_one_season_eight_team_league(all_timeslot_attributes, all_rink_attr
     return schedule
 end
 
-def schedule_one_season_twelve_team_league(all_timeslot_attributes, all_rink_attributes)
-    number_of_teams = 12 
-    number_of_timeslots = 6
-    number_of_weeks = (number_of_teams - 1) * 3
-    schedule = create_simple_empty_schedule(number_of_teams, number_of_weeks, number_of_timeslots, [120, 130, 140, 120, 130, 140], [1, 1, 1, 2, 2, 2], all_timeslot_attributes, all_rink_attributes)
+def schedule_one_season_twelve_team_league()
+    schedule = CreateSimpleEmptySchedule.create_simple_twelve_team_empty_schedule()
 
     TeamMatchupsCircular.get_team_matchups(schedule)
 
@@ -783,53 +744,26 @@ end
 
 if __FILE__ == $0
 
-    all_timeslot_attributes = {
-        # weeknight leagues
-        10 => { :late_game => false, :early_game => true, :alternate_day => false, :timeslot_id => 10, :description => "7:00pm"},
-        20 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 20, :description => "8:15pm"},
-        30 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 30, :description => "9:30pm"},
-        40 => { :late_game => true, :early_game => false, :alternate_day => false, :timeslot_id => 40, :description => "10:45pm"},
-
-        # the thursday league where games were sched fri 7 & 10:45 alternating
-        50 => { :late_game => false, :early_game => true, :alternate_day => true, :timeslot_id => 50, :description => "Fri 7:00pm"},
-        60 => { :late_game => true, :early_game => false, :alternate_day => true, :timeslot_id => 60, :description => "Fri 10:45pm"},
-
-        # weekend saturday
-        70 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 70, :description => "9:00pm"},
-        80 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 80, :description => "10:15pm"},
-
-
-        # Thursday Redwood City / San Mateo split league
-        120 => { :late_game => false, :early_game => false, :alternate_day => false,  :description => "8:00pm" },
-        130 => { :late_game => false, :early_game => false, :alternate_day => false,  :description => "9:15pm" },
-        140 => { :late_game => true, :early_game => false, :alternate_day => false,  :description => "10:30pm" },
-    }
-
-    all_rink_attributes = {
-        1 => { :short_name => "RWC", :long_name => "Redwood City Ice Oasis", :address => "3140 Bay Road, Redwood City, CA 94063" },
-        2 => { :short_name => "FC", :long_name => "Foster City Ice Oasis", :address => "Bridgepointe Shopping Center, Foster City, CA" }
-    }
-
     number_of_teams_to_schedule = 12
     if ARGV.size() > 0
         number_of_teams_to_schedule = ARGV[0].to_i
     end
 
     if number_of_teams_to_schedule == 4
-        results = schedule_one_season_four_team_league(all_timeslot_attributes, all_rink_attributes)
+        schedule = schedule_one_season_four_team_league()
     elsif number_of_teams_to_schedule == 6
-        results = schedule_one_season_six_team_league(all_timeslot_attributes, all_rink_attributes)
+        schedule = schedule_one_season_six_team_league()
     elsif number_of_teams_to_schedule == 7
-        results = schedule_one_season_seven_team_league(all_timeslot_attributes, all_rink_attributes)
+        schedule = schedule_one_season_seven_team_league()
     elsif number_of_teams_to_schedule == 8
-        results = schedule_one_season_eight_team_league(all_timeslot_attributes, all_rink_attributes)
+        schedule = schedule_one_season_eight_team_league()
     elsif number_of_teams_to_schedule == 12
-        results = schedule_one_season_twelve_team_league(all_timeslot_attributes, all_rink_attributes)
+        schedule = schedule_one_season_twelve_team_league()
     else
         puts "Unrecognized number of teams to schedule, doing nothing."
         exit
     end
 
-dump_scheduled_games(results, all_timeslot_attributes, all_rink_attributes)
+dump_scheduled_games(schedule)
 
 end
