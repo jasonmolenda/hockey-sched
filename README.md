@@ -3,11 +3,11 @@ A set of scripts to create a hockey league game schedule.  This is so specific t
 it won't be of use to anyone else.  And the code is just thrown together, I'm not taking the time to write it nicely.  It's only
 on github so it's under version control.
 
-# data structure
+## data structures
 
 The schedule is built up in stages by separate ruby modules.  They all contribute to/use a data structure.  
 
-### schedule
+# schedule
 
 `schedule` is a `Hash`.  It has the following entries:
 
@@ -27,13 +27,15 @@ The schedule is built up in stages by separate ruby modules.  They all contribut
 
 ### :weeks array entries
 
-`:bye` => If this schedule / week has a bye team, this is the team # that has the bye this week.
+`:bye` => If this schedule / week has a bye team, this is the team # that has the bye this week. If no bye this week, this will have a nil value.
+
+`:team_matchups` => An array (`:gamecount` large, 0-based) of teams that are playing each other this week.  Each element of this `:gamecount` array is a 2-elem Array of team numbers. This structure is used before timeslots are assigned -- the array is in no particular order.  The order of the teams in each element is not significant; home and away have not yet been set.
 
 `:games` => An  `Array`, 0-based, the size of the array is the number of games played that week.  Each entry in this games array is a `Hash`.  It has these entries:
 
 ### :games array entries
 
-`:teampair` => An array of two team numbers in no particular order (no home/away distinction).
+`:teampair` => An array of two team numbers playing in this timeslot.  Home and away have not yet been assigned for this data structure; the order of the team numbers is not significant.
 
 `:home` => If this key is present, it has the team # of the home team. (early in the schedule process this may not yet be assigned)
 
@@ -59,3 +61,13 @@ The keys are `timeslot_id`s, the values are a hash with these keys:
 `:alternate_day` => boolean, true if this timeslot is on an alternate day.  e.g. a Thursday league that may schedule one game on Friday each week.  Should space out the Friday games in this case.
 
 `:description` => textual description, used mostly for debugging
+
+### :rinks hash
+
+The keys are `rink_id`s, the values are a hash with these keys:
+
+`:name_short` => The short name of the rink, for including in calendar titles.
+
+`:name_long` => Longer name of the rink.
+
+`:address` => Address of the rink for including as a Location entry in calendar entries.

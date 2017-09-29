@@ -53,12 +53,21 @@
 module TeamMatchupsCircular
 
 
-
     # This method takes a schedule argument and fills in the [:weeks] array with
-    # the initial [:teampair] entries for each week's games.
+    # the initial [:team_matchups] entries for each week's games.
     # The schedule must already have :teamcount, :gamecount, and :weekcount filled
-    # in at this point.
-    # Any exiting :weeks entry in the schedule will be overwritten.
+    # in at this point.  The [:weeks] Array must already exist, and there must be
+    # entries for each of the weeks.  This phase doesn't need it, but 
+    #
+    # [:weeks][wknum][:games] 
+    #
+    # Array should also exist, and the 
+    #
+    # [:weeks][wknum][:games][gamenum][:timeslot_id]
+    # [:weeks][wknum][:games][gamenum][:rink_id]
+    #
+    # entries should already be filled by the caller.  These will be needed by
+    # later passes.
     # 
     # See the README.md for more details about the structure of schedule.
 
@@ -66,7 +75,14 @@ module TeamMatchupsCircular
         teamcount = schedule[:teamcount]
         gamecount = schedule[:gamecount]
         weekcount = schedule[:weekcount]
-        schedule[:weeks] = Array.new
+        if !schedule.has_key?(:weeks)
+            puts "ERROR: schedule is missing a :weeks key"
+            exit true
+        end
+        if schedule[:weeks].size() != schedule[:weekcount]
+            puts "ERROR: schedule's :weeks array should have #{schedule[:weekcount]} entries with the timeslot_ids and rink_ids filled in"
+            exit true
+        end
 
         number_of_teams_incl_ghost = teamcount
         number_of_timeslots_incl_ghost = gamecount
@@ -142,7 +158,8 @@ module TeamMatchupsCircular
                     matchups.push({ :teampair => [team_numbers[t1 - 1], team_numbers[t2 - 1]] })
                 end
             end
-            schedule[:weeks].push({:games => matchups, :bye => team_with_bye_this_week})
+            schedule[:weeks][wknum][:team_matchups] = matchups
+            schedule[:weeks][wknum][:bye] = team_with_bye_this_week
         end
     end
 end
@@ -161,7 +178,14 @@ if __FILE__ == $0
 
     examples.each do |ex|
         puts ""
+        ex[:weekcount] = (ex[:teamcount] - 1) * 3
+        ex[:weeks] = Array.new
+        0.upto(ex[:weekcount] - 1) do |i|
+            ex[:weeks][i] = Hash.new
+            ex[:weeks][i][:games] = Array.new
+        end
         puts "#{ex[:teamcount]} teams, #{ex[:gamecount]} timeslots, #{ex[:weekcount]} weeks"
+
         TeamMatchupsCircular.get_team_matchups(ex)
 
         games_played = Hash.new
@@ -169,7 +193,7 @@ if __FILE__ == $0
 
         (1..ex[:weekcount]).each do |i|
             matchups = Array.new
-            ex[:weeks][i - 1][:games].each do |game|
+            ex[:weeks][i - 1][:team_matchups].each do |game|
                 matchups.push("#{game[:teampair][0]} v #{game[:teampair][1]}")
             end
             print "Week #{i}: #{matchups.join(', ')}"
@@ -177,7 +201,7 @@ if __FILE__ == $0
                 print ", bye team: #{ex[:weeks][i - 1][:bye]}"
             end
             puts ""
-            ex[:weeks][i - 1][:games].each do |game|
+            ex[:weeks][i - 1][:team_matchups].each do |game|
             games_played[game[:teampair][0]] += 1
             games_played[game[:teampair][1]] += 1
             end
@@ -191,7 +215,7 @@ if __FILE__ == $0
             end
         end
         (1..ex[:weekcount]).each do |i|
-            ex[:weeks][i - 1][:games].each do |game|
+            ex[:weeks][i - 1][:team_matchups].each do |game|
                 t1 = game[:teampair][0]
                 t2 = game[:teampair][1]
                 if t1 == t2
