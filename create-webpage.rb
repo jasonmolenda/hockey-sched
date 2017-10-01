@@ -12,8 +12,8 @@ leagues = IceOasisLeagues.get_ice_oasis_leagues()
 puts "<html>"
 puts "<body>"
 puts "<h1 align=\"center\">Ice Oasis schedule creator v2</h1>"
-puts "Schedule start date: #{leagues[:start_date]}"
-puts "<br>Schedule end date: #{leagues[:end_date]}"
+puts "Schedule start date: #{leagues[:start_date].strftime("%a %b %e, %Y")}"
+puts "<br>Schedule end date: #{leagues[:end_date].strftime("%a %b %e, %Y")}"
 
 holidays = HolidayDates.get_holiday_schedule().select {|h| leagues[:start_date] <= h && h <= leagues[:end_date]}
 holidays = holidays.map {|h| h.strftime("%b %e")}
