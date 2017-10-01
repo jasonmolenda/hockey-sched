@@ -9,6 +9,7 @@ all:
 		home-away-assignment.rb \
 		team-matchups-circular.rb \
 		team-matchups-randomization.rb \
+		parse-ics.rb \
 		create.cgi \
 		\
 		molenda.com:molenda.us/cgi-bin/hockey-sched/

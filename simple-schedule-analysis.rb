@@ -129,9 +129,20 @@ module SimpleScheduleAnalysis
         puts ""
         puts ""
         teams_seen.keys.sort.each do |tnum|
-            puts "Report for team # #{tnum}"
+            team_name = "# #{tnum}"
+            if schedule.has_key?(:team_names)
+                team_name = schedule[:team_names][tnum - 1]
+            end
+            puts "Report for team #{team_name}"
 
-            puts "  Opponents: #{opponents_faced[tnum].map {|o| (o == nil) ? "bye" : o }.join(', ')}"
+            opponents = []
+            if schedule.has_key?(:team_names)
+                opponents = opponents_faced[tnum].map {|o| (o == nil) ? "bye" : schedule[:team_names][o - 1] }
+            else
+                opponents = opponents_faced[tnum].map {|o| (o == nil) ? "bye" : o }
+            end
+
+            puts "  Opponents: #{opponents.join(', ')}"
             puts "  Timeslots: #{timeslots_played[tnum].map {|t| schedule[:timeslots][t][:description]}.join(', ')}"
             if schedule[:rinkcount] > 1
                 puts "  Rinks: #{rinks_played[tnum].map {|r| schedule[:rinks][r][:short_name]}.join(', ')}"

@@ -1,5 +1,4 @@
 #! /usr/bin/ruby
-require 'open-uri'
 require 'cgi'
 
 $LOAD_PATH << File.dirname(__FILE__)
