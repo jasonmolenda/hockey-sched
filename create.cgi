@@ -83,6 +83,9 @@ File.open(filename, "w") do |f|
 end
 
 if File.exists?(filename)
+    total_number_of_weeks = (((leagues[:end_date] - leagues[:start_date]).to_i) / 7) + 1
+    puts "This schedule covers a #{total_number_of_weeks} week period.  #{schedule[:weekcount]} games scheduled this season, skipping holidays"
+
     url = filename.gsub(/.*schedules/, "http://molenda.us/schedules")
     puts "<p>Calendar created.  Available for download at URL: <a href=\"#{url}\">#{url}</a>"
     puts "<p>"

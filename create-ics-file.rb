@@ -91,6 +91,12 @@ module CreateICSText
             day = day + 7
         end
         ics.push("END:VCALENDAR")
+
+        # Remove any unused :weeks entries off the schedule
+        if wknum > 0
+            schedule[:weeks].slice!(wknum..(schedule[:weekcount] - 1))
+            schedule[:weekcount] = wknum
+        end
         return ics
     end
 end
