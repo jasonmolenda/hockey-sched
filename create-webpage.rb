@@ -3,6 +3,7 @@
 $LOAD_PATH << File.dirname(__FILE__)
 
 require 'ice-oasis-leagues'
+require 'holidays'
 
 timeslots = IceOasisLeagues.get_timeslots()
 rinks = IceOasisLeagues.get_rinks()
@@ -13,6 +14,11 @@ puts "<body>"
 puts "<h1 align=\"center\">Ice Oasis schedule creator v2</h1>"
 puts "Schedule start date: #{leagues[:start_date]}"
 puts "<br>Schedule end date: #{leagues[:end_date]}"
+
+holidays = HolidayDates.get_holiday_schedule().select {|h| leagues[:start_date] <= h && h <= leagues[:end_date]}
+holidays = holidays.map {|h| h.strftime("%b %e")}
+puts "<br>Holidays during this schedule: #{holidays.join(', ')}"
+
 leagues[:leagues].sort {|x,y| x[:day_of_week] <=> y[:day_of_week]}.each do |l|
     puts "<h2>#{l[:name]} league</h2>"
     teamcount = l[:team_names].size()
