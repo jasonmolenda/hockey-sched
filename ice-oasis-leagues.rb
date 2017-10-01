@@ -73,7 +73,7 @@ module IceOasisLeagues
         fall2017 = Hash.new
         fall2017[:name] = "Fall-Winter 2017-18"
         fall2017[:start_date] = Date.parse("2017-10-01")
-        fall2017[:end_date] = Date.parse("2018-03-24")
+        fall2017[:end_date] = Date.parse("2018-03-10")
         fall2017[:leagues] = [
             { :day_of_week => 0,
               :name => "Sunday",

@@ -130,7 +130,11 @@ module AnalyzeSchedule
                 rinks[schedule[:rinks][g[:rink_id]][:short_name]] += 1
             end
             puts "<p />" if html
-            puts "Number of games at each timeslot:"
+            print "Number of "
+            print "<b>" if html
+            print "games at each timeslot"
+            print "</b>" if html
+            puts ":"
             puts "<tt>" if html
             game_times.keys.sort {|x,y| x <=> y}.each do |t|
                 puts "<br />" if html
@@ -139,7 +143,11 @@ module AnalyzeSchedule
             puts "</tt>" if html
 
             puts "<p />" if html
-            puts "Number of times playing against opposing teams:"
+            print "Number of "
+            print "<b>" if html
+            print "times playing against opposing teams"
+            print "</b>" if html
+            puts ":"
             puts "<tt>" if html
             opponents.keys.sort {|x,y| opponents[y] <=> opponents[x]}.each do |o|
                 puts "<br />" if html
@@ -149,7 +157,11 @@ module AnalyzeSchedule
 
             if schedule[:rinkcount] > 1
                 puts "<p />" if html
-                puts "Number of times playing at each rink:"
+                print "Number of "
+                print "<b>" if html
+                print "times playing at each rink"
+                print "</b>" if html
+                puts ":"
                 puts "<tt>" if html
                 rinks.keys.sort {|x,y| rinks[y] <=> rinks[x]}.each do |r|
                     puts "<br />" if html
@@ -158,18 +170,90 @@ module AnalyzeSchedule
                 puts "</tt>" if html
             end
 
-            puts "</blockquote>" if html
+            opponent_list = all_games_for_each_team[tnum].select {|g| g[:bye] == false}.map {|g| team_name(schedule, g[:opponent])}
+            times_list = all_games_for_each_team[tnum].select {|g| g[:bye] == false}.map {|g| g[:timeslot_id]}
+            rink_list = all_games_for_each_team[tnum].select {|g| g[:bye] == false}.map {|g| g[:rink_id]}
+
+            opponent_streaks = opponent_list.chunk{|y| y}.map{|y, ys| [y, ys.length]}.select{|v| v[1] > 1}
+            time_streaks = times_list.chunk{|y| y}.map{|y, ys| [y, ys.length]}.select{|v| v[1] > 1}.
+                                select do |v| 
+                                    tid = v[0]
+                                    ts = schedule[:timeslots][tid]
+                                    ts[:late_game] == true || ts[:early_game] == true || ts[:alternate_day] == true
+                                end.
+                                map {|v| [schedule[:timeslots][v[0]][:description], v[1]]}
+            rink_streaks = rink_list.chunk{|y| y}.map{|y, ys| [y, ys.length]}.select{|v| v[1] > 1}.
+                                map {|v| [schedule[:rinks][v[0]][:long_name], v[1]]}
+
+            puts "<p />" if html
+            print "Back-to-back "
+            print "<b>" if html
+            print "games against the same opponent"
+            print "</b>" if html
+            puts ":"
+            if opponent_streaks.size() > 0
+                puts "<br /><tt>" if html
+                opponent_streaks.sort {|x,y| y[1] <=> x[1]}.each do |v|
+                    opponent = v[0]
+                    count = v[1]
+                    puts "        #{count} games in a row against #{opponent}"
+                    puts "<br />" if html
+                end
+                puts "</tt>" if html
+            end
+
+            puts "<p />" if html
+            print "Back-to-back "
+            print "<b>" if html
+            print "games in the same timeslot"
+            print "</b>" if html
+            puts ":"
+            if time_streaks.size() > 0
+                puts "<br /><tt>" if html
+                time_streaks.sort {|x,y| y[1] <=> x[1]}.each do |v|
+                    timeslot = v[0]
+                    count = v[1]
+                    puts "        #{count} games in a row at #{timeslot}"
+                    puts "<br />" if html
+                end
+                puts "</tt>" if html
+            end
+
+            if rink_streaks.size() > 0 && schedule[:rinkcount] > 1
+                puts "<p />" if html
+                print "Back-to-back "
+                print "<b>" if html
+                print "games at the same rink"
+                print "</b>" if html
+                puts ":"
+                puts "<br /><tt>" if html
+                rink_streaks.sort {|x,y| y[1] <=> x[1]}.each do |v|
+                    rink = v[0]
+                    count = v[1]
+                    puts "        #{count} games in a row at rink #{rink}"
+                    puts "<br />" if html
+                end
+                puts "</tt>" if html
+            end
+
+
+            if html
+                puts "</blockquote>"
+                puts "<p />"
+            else
+                puts ""
+            end
+
         end
 
     end
 end
 
 if __FILE__ == $0
-    require 'simple-schedule-analysis'
     require 'parse-ics'
 
     ics_text = %x[./test-ics.rb]
     schedule = ParseICS.ics_to_schedule(ics_text)
-    AnalyzeSchedule.analyze_schedule(schedule, true)
+    AnalyzeSchedule.analyze_schedule(schedule, false)
 end
 
