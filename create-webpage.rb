@@ -10,6 +10,9 @@ rinks = IceOasisLeagues.get_rinks()
 leagues = IceOasisLeagues.get_ice_oasis_leagues()
 
 puts "<html>"
+puts "<head>"
+puts "<title>Ice Oasis schedule creator v2</title>"
+puts "</head>"
 puts "<body>"
 puts "<h1 align=\"center\">Ice Oasis schedule creator v2</h1>"
 puts "Schedule start date: #{leagues[:start_date].strftime("%a %b %e, %Y")}"
