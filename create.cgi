@@ -29,9 +29,11 @@ leagues = IceOasisLeagues.get_ice_oasis_leagues()
 timeslots = IceOasisLeagues.get_timeslots()
 rinks = IceOasisLeagues.get_rinks()
 
-league = leagues[:leagues].select {|l| l[:name] == cgi["league"]}
+league_name_from_cgi = cgi["league"].gsub(/%20/, ' ')
+
+league = leagues[:leagues].select {|l| l[:name] == league_name_from_cgi}
 if league.size() != 1
-    puts "ERROR: Found #{league.size()} matches for string '#{cgi["league"]}'"
+    puts "ERROR: Found #{league.size()} matches for string '#{league_name_from_cgi}'"
     puts "</body></html>"
 end
 
