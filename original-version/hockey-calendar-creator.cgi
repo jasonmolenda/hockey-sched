@@ -696,7 +696,7 @@ def parse_args(cgi, results)
       team_names = ["Gryphons", "Anubis", "Hydra", "Minotaurs"]
     end
     if cgi['league'] == "Sunday"
-      team_names = ["Sand Lizards", "SuperEvil MEGACorp", "Dates", "Desert Storm", "Night Owls", "Team 6"]
+      team_names = ["Sand Lizards", "SuperEvil MEGACorp", "Dates", "Desert Storm", "Night Owls", "Desert Fleas"]
     end
   end
 
