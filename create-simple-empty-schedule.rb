@@ -67,7 +67,7 @@ module CreateSimpleEmptySchedule
                        :long_name => "Redwood City Ice Oasis", 
                        :address => "3140 Bay Rd, Redwood City, CA 94063",
                        :location => "LOCATION:3140 Bay Rd\\nRedwood City\\, CA 94063\\, United States", 
-                       :structured_location => "X-APPLE-STRUCTURED-LOCATION;VALUE=URI;X-APPLE-RADIUS=68.20933622731799;X-TITLE=\"3140 Bay Rd\\nRedwood City, CA, United States\":geo:37.481956,-122.200339"
+                       :structured_location => "X-APPLE-STRUCTURED-LOCATION;VALUE=URI;X-APPLE-RADIUS=68.20933622731799;X-TITLE=\"3140 Bay Rd\\nRedwood City, CA 94063, United States\":geo:37.481956,-122.200339"
                      },
                 2 => { :short_name => "SM", 
                        :long_name => "San Mateo Ice Oasis", 

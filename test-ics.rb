@@ -39,7 +39,7 @@ def create_ics_file (schedule, first_game_date, last_date_this_season, team_name
             day = day + 7
             next
         end
-        schedule[:weeks][wknum][:games].each do |game|
+        schedule[:weeks][wknum][:games].sort {|x,y| x[:rink_id] <=> y[:rink_id]}.each do |game|
             tid = game[:timeslot_id]
             rid = game[:rink_id]
             home = game[:home]
