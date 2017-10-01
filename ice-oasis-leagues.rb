@@ -6,6 +6,24 @@ module IceOasisLeagues
     def self.get_timeslots()
         timeslots = Hash.new { |hsh, key| hsh[key] = {:late_game=>false, :early_game=>false, :alternate_day=>false} }
 
+    def self.get_rinks()
+        rinks = {
+            1 => { :short_name => "RWC", 
+                   :long_name => "Redwood City Ice Oasis", 
+                   :address => "3140 Bay Rd, Redwood City, CA 94063",
+                   :location => "LOCATION:3140 Bay Rd\\nRedwood City\\, CA 94063\\, United States", 
+                   :structured_location => "X-APPLE-STRUCTURED-LOCATION;VALUE=URI;X-APPLE-RADIUS=68.20933622731799;X-TITLE=\"3140 Bay Rd\\nRedwood City, CA 94063, United States\":geo:37.481956,-122.200339"
+                 },
+            2 => { :short_name => "SM", 
+                   :long_name => "San Mateo Ice Oasis", 
+                   :address => "2202 Bridgepointe Pkwy, San Mateo, CA 94404",
+                   :location => "LOCATION:2202 Bridgepointe Pkwy\\nSan Mateo\\, CA 94404\\, United States",
+                   :structured_location => "X-APPLE-STRUCTURED-LOCATION;VALUE=URI;X-APPLE-RADIUS=68.20933622731799;X-TITLE=\"2202 Bridgepointe Pkwy\\nSan Mateo, CA 94404, United States\":geo:37.561887,-122.281446"
+                 }
+        }
+        return rinks
+    end
+
         entries_to_add = {
             # 2017 Sunday league
             0  => {:description => "5:30pm",  :hour => 17, :minute => 30},
@@ -24,10 +42,17 @@ module IceOasisLeagues
             11 => {:description => "8:15pm",  :hour => 20, :minute => 15},
             12 => {:description => "9:30pm",  :hour => 21, :minute => 30},
             13 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+
             # 2017 Thursday league
-            15 => {:description => "8:00pm",  :hour => 20, :minute => 00},
-            16 => {:description => "9:15pm",  :hour => 21, :minute => 15},
-            17 => {:description => "10:30pm", :hour => 22, :minute => 30, :late_game => true},
+            # RWC times
+            15 => {:description => "8:15pm",  :hour => 20, :minute => 15},
+            16 => {:description => "9:30pm",  :hour => 21, :minute => 30},
+            17 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+            # SM times
+            18 => {:description => "7:45pm",  :hour => 19, :minute => 45},
+            19 => {:description => "9:00pm",  :hour => 21, :minute => 00},
+            20 => {:description => "10:15pm", :hour => 22, :minute => 15, :late_game => true},
+
             # 2017 Friday league
             21 => {:description => "8:15pm",  :hour => 20, :minute => 15},
             22 => {:description => "9:30pm",  :hour => 21, :minute => 30},
@@ -49,24 +74,6 @@ module IceOasisLeagues
         end
 
         return timeslots
-    end
-
-    def self.get_rinks()
-        rinks = {
-            1 => { :short_name => "RWC", 
-                   :long_name => "Redwood City Ice Oasis", 
-                   :address => "3140 Bay Rd, Redwood City, CA 94063",
-                   :location => "LOCATION:3140 Bay Rd\\nRedwood City\\, CA 94063\\, United States", 
-                   :structured_location => "X-APPLE-STRUCTURED-LOCATION;VALUE=URI;X-APPLE-RADIUS=68.20933622731799;X-TITLE=\"3140 Bay Rd\\nRedwood City, CA 94063, United States\":geo:37.481956,-122.200339"
-                 },
-            2 => { :short_name => "SM", 
-                   :long_name => "San Mateo Ice Oasis", 
-                   :address => "2202 Bridgepointe Pkwy, San Mateo, CA 94404",
-                   :location => "LOCATION:2202 Bridgepointe Pkwy\\nSan Mateo\\, CA 94404\\, United States",
-                   :structured_location => "X-APPLE-STRUCTURED-LOCATION;VALUE=URI;X-APPLE-RADIUS=68.20933622731799;X-TITLE=\"2202 Bridgepointe Pkwy\\nSan Mateo, CA 94404, United States\":geo:37.561887,-122.281446"
-                 }
-        }
-        return rinks
     end
 
     def self.get_ice_oasis_leagues()
@@ -117,7 +124,7 @@ module IceOasisLeagues
             },
             { :day_of_week => 4,
               :name => "Thursday",
-              :timeslot_ids => [15, 16, 17, 15, 16, 17],
+              :timeslot_ids => [15, 16, 17, 18, 19, 20],
               :rink_ids => [1, 1, 1, 2, 2, 2],
               :team_names => [
                   "Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes", "Geckos", "Tarantulas"
