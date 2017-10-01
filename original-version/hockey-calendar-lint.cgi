@@ -510,7 +510,11 @@ else
   if cgi.has_key?("io-calendar-check") && cgi.has_key?("league")
     season_to_test = cgi["io-calendar-check"]
     league = cgi["league"]
-    if season_to_test == "spring2017"
+    if season_to_test == "fall2017"
+      league_urls = league_urls_2014_and_later
+      start_date = "2017-10-01"
+      end_date = "2017-03-10"
+    elsif season_to_test == "spring2017"
       league_urls = league_urls_2014_and_later
       start_date = "2017-04-01"
       end_date = "2017-09-10"
