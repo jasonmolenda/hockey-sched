@@ -17,7 +17,7 @@ puts "<br>Schedule end date: #{leagues[:end_date].strftime("%a %b %e, %Y")}"
 
 holidays = HolidayDates.get_holiday_schedule().select {|h| leagues[:start_date] <= h && h <= leagues[:end_date]}
 holidays = holidays.map {|h| h.strftime("%b %e")}
-puts "<br>Holidays during this schedule: #{holidays.join(', ')}"
+puts "<p>Holidays during this schedule: #{holidays.join(', ')}"
 
 leagues[:leagues].sort {|x,y| x[:day_of_week] <=> y[:day_of_week]}.each do |l|
     puts "<h2>#{l[:name]} league</h2>"
