@@ -10,7 +10,7 @@ leagues = IceOasisLeagues.get_ice_oasis_leagues()
 
 puts "<html>"
 puts "<body>"
-puts "<h1 align=\"center\">Ice Oasis schedule creator, v2</h1>"
+puts "<h1 align=\"center\">Ice Oasis schedule creator v2</h1>"
 puts "Schedule start date: #{leagues[:start_date]}"
 puts "<br>Schedule end date: #{leagues[:end_date]}"
 leagues[:leagues].sort {|x,y| x[:day_of_week] <=> y[:day_of_week]}.each do |l|
@@ -43,6 +43,7 @@ leagues[:leagues].sort {|x,y| x[:day_of_week] <=> y[:day_of_week]}.each do |l|
 end
 
 puts "<hr>"
-puts "This page last updated #{DateTime.now.to_s}"
+puts "All sources available at <a href=\"https://github.com/jasonmolenda/hockey-sched\">https://github.com/jasonmolenda/hockey-sched</a>"
+puts "<br>This page last updated #{DateTime.now.to_s}"
 puts "</body>"
 puts "</html>"
