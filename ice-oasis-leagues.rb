@@ -3,9 +3,6 @@ require 'date'
 
 module IceOasisLeagues
 
-    def self.get_timeslots()
-        timeslots = Hash.new { |hsh, key| hsh[key] = {:late_game=>false, :early_game=>false, :alternate_day=>false} }
-
     def self.get_rinks()
         rinks = {
             1 => { :short_name => "RWC", 
@@ -23,6 +20,9 @@ module IceOasisLeagues
         }
         return rinks
     end
+
+    def self.get_timeslots()
+        timeslots = Hash.new { |hsh, key| hsh[key] = {:late_game=>false, :early_game=>false, :alternate_day=>false} }
 
         entries_to_add = {
             # 2017 Sunday league

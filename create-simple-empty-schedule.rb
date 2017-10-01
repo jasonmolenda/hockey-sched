@@ -56,9 +56,9 @@ module CreateSimpleEmptySchedule
 
 
                 # Thursday Redwood City / San Mateo split league
-                120 => { :late_game => false, :early_game => false, :alternate_day => false,  :description => "8:00pm", :hour => 20, :minute => 0 },
-                130 => { :late_game => false, :early_game => false, :alternate_day => false,  :description => "9:15pm", :hour => 21, :minute => 15 },
-                140 => { :late_game => true, :early_game => false, :alternate_day => false,  :description => "10:30pm", :hour => 22, :minute => 30 },
+                120 => { :late_game => false, :early_game => false, :alternate_day => false,  :description => "7:45pm", :hour => 19, :minute => 45 },
+                130 => { :late_game => false, :early_game => false, :alternate_day => false,  :description => "9:00pm", :hour => 21, :minute => 00 },
+                140 => { :late_game => true, :early_game => false, :alternate_day => false,  :description => "10:15pm", :hour => 22, :minute => 15 },
             }
         end
         if rinks == nil

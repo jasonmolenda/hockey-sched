@@ -34,6 +34,9 @@ module ParseICS
             end
             time_desc = events[idx][:start_time].strftime("%l:%M%p").downcase.gsub(/ /, '')
             tid = timeslots.keys.select {|t| time_desc == timeslots[t][:description]}.first
+            if tid == nil
+                puts "Could not find a timeslot matching time #{time_desc}"
+            end
             events[idx][:timeslot_id] = tid
 
             summary = events[idx][:summary].gsub(/^SM /, '').gsub(/^RWC /, '')

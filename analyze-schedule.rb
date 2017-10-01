@@ -142,6 +142,39 @@ module AnalyzeSchedule
             end
             puts "</tt>" if html
 
+            timeslot_attribs = all_games_for_each_team[tnum].map do |g|
+                                    tid = g[:timeslot_id]
+                                    schedule[:timeslots][tid]
+                                end
+            if timeslot_attribs.count {|ts| ts[:late_game] == true || ts[:early_game] == true || ts[:alternate_day] == true} > 0
+                puts "<p />" if html
+                print "Number of "
+                print "<b>" if html
+                print "games at undesirable timeslots"
+                print "</b>" if html
+                puts ":"
+                puts "<tt>" if html
+                late_games = timeslot_attribs.select {|ts| ts[:late_game]}
+                early_games = timeslot_attribs.select {|ts| ts[:early_game]}
+                alternate_day_games = timeslot_attribs.select {|ts| ts[:alternate_day]}
+                if late_games.size() > 0
+                    games = late_games.size()
+                    puts "<br />" if html
+                    printf "        #{games} - late games (%d%%)\n", 100.0 * games / gamecount
+                end
+                if early_games.size() > 0
+                    games = early_games.size()
+                    puts "<br />" if html
+                    printf "        #{games} - early games (%d%%)\n", 100.0 * games / gamecount
+                end
+                if alternate_day_games.size() > 0
+                    games = alternate_day_games.size()
+                    puts "<br />" if html
+                    printf "        #{games} - alternate day games (%d%%)\n", 100.0 * games / gamecount
+                end
+                puts "</tt>" if html
+            end
+
             puts "<p />" if html
             print "Number of "
             print "<b>" if html
@@ -169,6 +202,7 @@ module AnalyzeSchedule
                 end
                 puts "</tt>" if html
             end
+
 
             opponent_list = all_games_for_each_team[tnum].select {|g| g[:bye] == false}.map {|g| team_name(schedule, g[:opponent])}
             times_list = all_games_for_each_team[tnum].select {|g| g[:bye] == false}.map {|g| g[:timeslot_id]}
