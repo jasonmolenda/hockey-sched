@@ -654,7 +654,7 @@ def parse_args(cgi, results)
 
   if cgi['times'] == "same"
     game_times = ["17:45", "19:00", "20:15"] if cgi['league'] == "Sunday"
-    game_times = ["20:15", "21:30", "22:45"] if cgi['league'] == "Monday"
+    game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Monday"
     game_times = ["19:00", "20:15", "21:30", "22:45"] if cgi['league'] == "Tuesday"
     game_times = ["19:00", "20:15"] if cgi['league'] == "Tuesday-league1"
     game_times = ["21:30", "22:45"] if cgi['league'] == "Tuesday-league2"
@@ -672,7 +672,7 @@ def parse_args(cgi, results)
   team_names = Array.new
   if cgi['teamnames'] == "same"
     if cgi['league'] == "Monday"
-      team_names = ["Flying Carpets", "Blue Martini", "Desert Owls", "Desert Hawks", "Toasters", "Sphinx"]
+      team_names = ["Flying Carpets", "Blue Martini", "Desert Owls", "Desert Hawks", "Toasters", "Sphinx", "Desert Rats", "Mirage"]
     end
     if cgi['league'] == "Tuesday"
       team_names = ["Molson", "BioSteel", "Harvard", "Kanter", "CCCP", "KingFishers", "Toucans", "O'Neill's"]
