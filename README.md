@@ -23,13 +23,19 @@ The schedule is built up in stages by separate ruby modules.  They all contribut
 
 `:rinks` => `Hash` of descriptions of all the rinks seen in this schedule (may include additional rink descriptions).  Keys in this hash are the `rink_id`s, values are the attributes and description of those `rink_id`s.
 
+`:team_names` *[optional]* Only guaranteed to be present when analyzing an existing schedule, so we can show human-readable names for the analysis report.
+
 `:weeks` => An `Array`, one element per week, 0-based (size of `:weeks` array is `:weekcount`).  Each element of the array is a `Hash`.  The hash has two keys:
 
 ### :weeks array entries
 
 `:bye` => If this schedule / week has a bye team, this is the team # that has the bye this week. If no bye this week, this will have a nil value.
 
-`:team_matchups` => An array (`:gamecount` large, 0-based) of teams that are playing each other this week.  Each element of this `:gamecount` array is a 2-elem Array of team numbers. This structure is used before timeslots are assigned -- the array is in no particular order.  The order of the teams in each element is not significant; home and away have not yet been set.
+`:team_matchups` => An array (`:gamecount` large, 0-based) of teams that are playing each other this week.  Each element of this 
+
+`:gamecount` array is a 2-elem Array of team numbers. This structure is used before timeslots are assigned -- the array is in no particular order.  The order of the teams in each element is not significant; home and away have not yet been set.
+
+`:date` *[optional]*  Date object of this week's date.  Only present when analyzing an existing schedule with dates in it.  If a league has games on the main day and an alternate day, this will be the main day's Date.
 
 `:games` => An  `Array`, 0-based, the size of the array is the number of games played that week.  Each entry in this games array is a `Hash`.  It has these entries:
 
@@ -44,6 +50,8 @@ The schedule is built up in stages by separate ruby modules.  They all contribut
 `:timeslot_id` => the `timeslot_id` of this game.
 
 `:rink_id` => the `rink_id` of this game.
+
+`:datetime` => *[optional]* The time and date of the start of this game.  This field will only appear when analyzing an existing schedule, and may be useful for distinguishing games that are played on the primary day for the league versus an alternate overflow day.
 
 
 ### timeslots hash

@@ -101,13 +101,15 @@ module ParseICS
             end
             schedule[:weeks][wknum] = Hash.new
             schedule[:weeks][wknum][:bye] = teams_with_no_games[0]
+            schedule[:weeks][wknum][:date] = this_week
             schedule[:weeks][wknum][:games] = Array.new
             events_this_week.sort {|x,y| x[:start_time] <=> y[:start_time]}.each do |event|
                 schedule[:weeks][wknum][:games].push( { :timeslot_id => event[:timeslot_id],
                                                  :rink_id => event[:rink_id],
                                                  :home => event[:home],
                                                  :away => event[:away],
-                                                 :teampair => event[:teampair]
+                                                 :teampair => event[:teampair],
+                                                 :datetime => event[:start_time]
                                               } )
             end
         end
