@@ -54,14 +54,70 @@ module AnalyzeSchedule
         teams_seen = all_games_for_each_team.keys.map {|t| team_name(schedule, t) }.sort
 
         puts "#{teams_seen.size()} teams seen in this calendar: "
+        puts "<pre>" if html
         puts "     #{teams_seen.join(', ')}"
+        puts "</pre>" if html
         puts ""
         puts ""
         all_games_for_each_team.keys.each do |tnum|
             team_name = team_name(schedule, tnum)
-            puts "<b>" if html
-            puts team_name
-            puts "</b>" if html
+            if html
+                puts "<h3>#{team_name}</h3>"
+            else
+                puts team_name
+            end
+
+            puts "<blockquote>" if html
+
+            gamecount = all_games_for_each_team[tnum].select {|g| g[:bye] == false }.size()
+            puts "Number of games: #{gamecount}"
+            home_game_count = all_games_for_each_team[tnum].select {|g| g[:home] == true }.size()
+            away_game_count = all_games_for_each_team[tnum].select {|g| g[:home] == false && g[:bye] == false}.size()
+            bye_game_count = all_games_for_each_team[tnum].select {|g| g[:bye] == true }.size()
+            puts "<br />" if html
+            printf("Number of home games: #{home_game_count} (%d%%)\n", 100.0 * home_game_count / gamecount)
+            puts "<br />" if html
+            printf("Number of away games: #{away_game_count} (%d%%)\n", 100.0 * away_game_count / gamecount)
+            if bye_game_count > 0
+                puts "<br />" if html
+                printf("Number of byes: #{bye_game_count} (%d%%)\n", 100.0 * bye_game_count / gamecount)
+            end
+            game_time_strs = Array.new
+            opponent_name_strs = Array.new
+            rink_name_strs = Array.new
+            all_games_for_each_team[tnum].each do |g|
+                if g[:bye] != false
+                    game_time_strs.push("bye")
+                    opponent_name_strs.push("bye")
+                    rink_name_strs.push("bye")
+                    next
+                end
+                game_time_strs.push(schedule[:timeslots][g[:timeslot_id]][:description])
+                opponent_name_strs.push(team_name(schedule, g[:opponent]))
+                rink_name_strs.push(schedule[:rinks][g[:rink_id]][:short_name])
+            end
+            puts "<p />" if html
+            print "<b>" if html
+            print "Game times"
+            print "</b>" if html
+            print ": "
+            puts game_time_strs.join(', ')
+            puts "<p />" if html
+            print "<b>" if html
+            print "Opponents"
+            print "</b>" if html
+            print ": "
+            puts opponent_name_strs.join(', ')
+            if schedule[:rinkcount] > 1
+                puts "<p />" if html
+                print "<b>" if html
+                print "Rinks"
+                print "</b>" if html
+                print ": "
+                puts rink_name_strs.join(', ')
+            end
+
+            puts "</blockquote>" if html
         end
 
     end

@@ -92,12 +92,10 @@ if File.exists?(filename)
     puts "<p>"
     puts "<hr>"
     puts "<h2>schedule analysis</h2>"
-    puts "<pre>"
 
     final_schedule = ParseICS.ics_to_schedule(ics_text)
     AnalyzeSchedule.analyze_schedule(final_schedule, true)
 
-    puts "</pre>"
 
     #puts "<br>Or run it through the <a href=\"http://molenda.us/cgi-bin/hockey-sched/check.cgi?url=#{url.gsub(/\//, "%2F")}&startdate=&enddate=&Submit=Submit\">schedule checker</a>."
 else
