@@ -59,7 +59,7 @@ module AnalyzeSchedule
         puts "</pre>" if html
         puts ""
         puts ""
-        all_games_for_each_team.keys.each do |tnum|
+        all_games_for_each_team.keys.sort {|x,y| team_name(schedule, x) <=> team_name(schedule, y)}.each do |tnum|
             team_name = team_name(schedule, tnum)
             if html
                 puts "<h3>#{team_name}</h3>"
@@ -115,6 +115,47 @@ module AnalyzeSchedule
                 print "</b>" if html
                 print ": "
                 puts rink_name_strs.join(', ')
+            end
+
+            game_times = Hash.new(0)
+            opponents = Hash.new(0)
+            rinks = Hash.new(0)
+            all_games_for_each_team[tnum].each do |g|
+                next if g[:bye] != false
+                opponents[team_name(schedule, g[:opponent])] += 1
+                hr = schedule[:timeslots][g[:timeslot_id]][:hour]
+                min = schedule[:timeslots][g[:timeslot_id]][:minute]
+                time = "%02d:%02d" % [hr, min]
+                game_times[time] += 1
+                rinks[schedule[:rinks][g[:rink_id]][:short_name]] += 1
+            end
+            puts "<p />" if html
+            puts "Number of games at each timeslot:"
+            puts "<tt>" if html
+            game_times.keys.sort {|x,y| x <=> y}.each do |t|
+                puts "<br />" if html
+                printf "        #{t} - #{game_times[t]} games (%d%%)\n", 100.0 * game_times[t] / gamecount
+            end
+            puts "</tt>" if html
+
+            puts "<p />" if html
+            puts "Number of times playing against opposing teams:"
+            puts "<tt>" if html
+            opponents.keys.sort {|x,y| opponents[y] <=> opponents[x]}.each do |o|
+                puts "<br />" if html
+                printf "        #{opponents[o]} games: #{o} (%d%%)\n", 100.0 * opponents[o] / gamecount
+            end
+            puts "</tt>" if html
+
+            if schedule[:rinkcount] > 1
+                puts "<p />" if html
+                puts "Number of times playing at each rink:"
+                puts "<tt>" if html
+                rinks.keys.sort {|x,y| rinks[y] <=> rinks[x]}.each do |r|
+                    puts "<br />" if html
+                    printf "        #{rinks[r]} games: #{r} (%d%%)\n", 100.0 * rinks[r] / gamecount
+                end
+                puts "</tt>" if html
             end
 
             puts "</blockquote>" if html

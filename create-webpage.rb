@@ -19,7 +19,14 @@ holidays = HolidayDates.get_holiday_schedule().select {|h| leagues[:start_date] 
 holidays = holidays.map {|h| h.strftime("%b %e")}
 puts "<p>Holidays during this schedule: #{holidays.join(', ')}"
 
-leagues[:leagues].sort {|x,y| x[:day_of_week] <=> y[:day_of_week]}.each do |l|
+leagues[:leagues].sort do |x,y| 
+        # Treat day of week 0 (Sunday) as day of week 7 so it sorts to last on the list
+        x_wday = x[:day_of_week]
+        y_wday = y[:day_of_week]
+        x_wday = 7 if x_wday == 0
+        y_wday = 7 if y_wday == 0
+        x_wday <=> y_wday
+    end.each do |l|
     puts "<h2>#{l[:name]} league</h2>"
     teamcount = l[:team_names].size()
     rinkcount = l[:rink_ids].sort.uniq.size()
@@ -38,11 +45,11 @@ leagues[:leagues].sort {|x,y| x[:day_of_week] <=> y[:day_of_week]}.each do |l|
     end
     puts "<form action=\"/cgi-bin/hockey-sched/create.cgi\" method=\"get\">"
     puts "<blockquote>"
-    puts "# of teams: #{teamcount} - #{l[:team_names].join(', ')}"
+    puts "# of teams: #{teamcount} - #{l[:team_names].sort.join(', ')}"
     puts "<br># of rinks: #{rinkcount} - #{rinknames.join(', ')}"
     puts "<br>Timeslots: #{times.join(', ')}"
     puts "<input type=\"hidden\" name=\"league\" value=\"#{l[:name].gsub(/ /, '%20')}\">"
-    puts "<br><input type=\"submit\" value=\"Get schedule\">"
+    puts "<br><input type=\"submit\" value=\"Make schedule\">"
     puts "</blockquote>"
     puts "</form>"
 
