@@ -35,7 +35,7 @@ leagues[:leagues].sort {|x,y| x[:day_of_week] <=> y[:day_of_week]}.each do |l|
     puts "# of teams: #{teamcount} - #{l[:team_names].join(', ')}"
     puts "<br># of rinks: #{rinkcount} - #{rinknames.join(', ')}"
     puts "<br>Timeslots: #{times.join(', ')}"
-    puts "<input type=\"hidden\" league=\"#{l[:name]}\">"
+    puts "<input type=\"hidden\" name=\"league\" value=\"#{l[:name].gsub(/ /, '%20')}\">"
     puts "<br><input type=\"submit\" value=\"Get schedule\">"
     puts "</blockquote>"
     puts "</form>"

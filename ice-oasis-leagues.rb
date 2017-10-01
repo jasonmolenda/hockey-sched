@@ -92,7 +92,7 @@ module IceOasisLeagues
                 ]
             },
             { :day_of_week => 2,
-              :name => "Tuesday RWC league",
+              :name => "Tuesday RWC",
               :timeslot_ids => [5, 6],
               :rink_ids => [1, 1],
               :team_names => [
@@ -100,7 +100,7 @@ module IceOasisLeagues
                 ]
             },
             { :day_of_week => 2,
-              :name => "Tuesday SM league",
+              :name => "Tuesday SM",
               :timeslot_ids => [5, 6],
               :rink_ids => [2, 2],
               :team_names => [

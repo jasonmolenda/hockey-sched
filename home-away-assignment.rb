@@ -2,7 +2,6 @@
 
 $LOAD_PATH << File.dirname(__FILE__)
 require 'team-matchups-circular'
-require 'create-simple-empty-schedule'
 require 'timeslot-assignment'
 
 @DEBUG = false
@@ -124,6 +123,8 @@ end
 
 
 if __FILE__ == $0
+    require 'create-simple-empty-schedule'
+
     test_home_away_four_teams()
     puts ""
     test_home_away_eight_teams()

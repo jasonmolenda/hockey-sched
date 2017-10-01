@@ -5,8 +5,6 @@ require 'team-matchups-circular'
 require 'team-matchups-randomization'
 require 'timeslot-assignment'
 require 'home-away-assignment'
-require 'create-simple-empty-schedule'
-require 'simple-schedule-analysis'
 
 def schedule_one_season_four_team_league()
     schedule = CreateSimpleEmptySchedule.create_simple_four_team_empty_schedule()
@@ -54,6 +52,8 @@ end
 
 
 if __FILE__ == $0
+    require 'create-simple-empty-schedule'
+    require 'simple-schedule-analysis'
 
     number_of_teams_to_schedule = 12
     if ARGV.size() > 0

@@ -6,11 +6,8 @@ require 'etc'
 
 $LOAD_PATH << File.dirname(__FILE__)
 require 'team-matchups-circular'
-require 'team-matchups-randomization'
 require 'timeslot-assignment'
 require 'home-away-assignment'
-require 'create-simple-empty-schedule'
-require 'simple-schedule-analysis'
 require 'holidays'
 
 module CreateICSText
@@ -141,6 +138,9 @@ end
 
 
 if __FILE__ == $0
+    require 'team-matchups-randomization'
+    require 'create-simple-empty-schedule'
+    require 'simple-schedule-analysis'
 
     number_of_teams_to_schedule = 12
     if ARGV.size() > 0
