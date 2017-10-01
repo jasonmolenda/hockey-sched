@@ -15,6 +15,10 @@ module IceOasisLeagues
             3  => {:description => "8:45pm",  :hour => 20, :minute => 45},
             4  => {:description => "10:00pm", :hour => 22, :minute => 00},
 
+            # 2017 Tuesday league(s)
+            5  => {:description => "8:45pm",  :hour => 20, :minute => 45},
+            6  => {:description => "10:00pm", :hour => 22, :minute => 00},
+            
             # 2017 Wednesday league
             10 => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
             11 => {:description => "8:15pm",  :hour => 20, :minute => 15},
@@ -85,6 +89,22 @@ module IceOasisLeagues
               :rink_ids => [1, 1, 2, 2],
               :team_names => [
                   "Flying Carpets", "Blue Martini", "Desert Owls", "Desert Hawks", "Toasters", "Sphinx", "Desert Rats", "Mirage" 
+                ]
+            },
+            { :day_of_week => 2,
+              :name => "Tuesday RWC league",
+              :timeslot_ids => [5, 6],
+              :rink_ids => [1, 1],
+              :team_names => [
+                  "Molson", "Kobra Kai", "Hard to Watch", "Kanter"
+                ]
+            },
+            { :day_of_week => 2,
+              :name => "Tuesday SM league",
+              :timeslot_ids => [5, 6],
+              :rink_ids => [2, 2],
+              :team_names => [
+                  "Sotasticks", "KingFishers", "Toucans", "O'Neill's"
                 ]
             },
             { :day_of_week => 3,
