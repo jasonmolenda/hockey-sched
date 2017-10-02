@@ -2,7 +2,6 @@
 
 $LOAD_PATH << File.dirname(__FILE__)
 require 'team-matchups-circular'
-require 'team-matchups-randomization'
 
 # Schedules are created in 4 steps, in this order:
 #

@@ -2,7 +2,6 @@
 
 $LOAD_PATH << File.dirname(__FILE__)
 require 'team-matchups-circular'
-require 'team-matchups-randomization'
 require 'timeslot-assignment'
 require 'home-away-assignment'
 

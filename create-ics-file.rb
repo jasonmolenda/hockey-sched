@@ -144,7 +144,6 @@ end
 
 
 if __FILE__ == $0
-    require 'team-matchups-randomization'
     require 'create-simple-empty-schedule'
     require 'simple-schedule-analysis'
 
