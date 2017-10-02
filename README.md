@@ -3,11 +3,46 @@ A set of scripts to create a hockey league game schedule.  This is so specific t
 it won't be of use to anyone else.  And the code is just thrown together, I'm not taking the time to write it nicely.  It's only
 on github so it's under version control.
 
-## data structures
+# File Organization
+
+The scheduler is broken apart into discrete programs to introduce API boundaries between them, make it easy to test individual components, and to have multiple implementations of a part & switch between them.  Most of these programs can be run from the command line and it will run a test data set through its algorithm and print a simple summary.  It's an easy way to test each component separately and debug as you go along.
+
+### create.cgi / create.rb
+
+The top level program that creates an ice oasis game schedule for a specific league.  The `.cgi` program is the one that is run on the web sever; `.rb` is equivalent but for running from the command line with simple text output.
+
+`create` uses the following modules:
+
+`ice-oasis-leagues.rb` provides the information about the leagues.  The current season start & end date, the number of teams, the game times, the rink locations, the team names.
+
+`holidays.rb` provides the holidays which need to be skipped when scheduling games.
+
+`team-matchups-circular.rb` takes the `schedule` object that `create` set up and decides which teams will be play which other teams in every game slot for the season.  It will put the team with a bye in a separate bye slot.  For certain # of teams, having the same pattern of teams facing each other over & over throughout the season can result in dramatically unbalanced time schedules.  For those leagues, `team-matchups-circular.rb` will play the teams in different order each set of games.  (for a 6 team league, a set of games takes 5 weeks to complete, where each team has played each other team once.)
+
+`timeslot-assignment.rb` is the second pass when filling out a `schedule`.  It looks at the team matchups that have been scheduled and assigns the team pairs to timeslots.  It has a scoring scheme so that teams will avoid having back to back late games, or play too many games in one specific slot.  It isn't perfect - sometimes near the end of a season you'll have two teams playing each other, team A and team B, and team A has already had all the late games it should have this season but team B is deficient on late games; it can be difficult to find a great solution to this.  The scoring system specifically tries to avoid back to back late games, it tries to avoid back to back early games, and has a slight preference against back to back other timeslots.
+
+`home-away-assignment.rb` the third pass, a simple one which determines which of the teams will be home versus away.  Currently based only on which of the teampair has fewer home games.
+
+`create-ics-file.rb` once the `schedule` internal object has been completed, `create-ics-file.rb` is called to create an iCal file which can be uploaded to google calendar or imported into a mac calendar app.
+
+`parse-ics.rb` parses an iCal file back into a `schedule` object as best it can, for analysis.  We want to analyze the `.ics` file that we generated as that's what everyone will actually be seeing.
+
+`analyze-schedule.rb` generates a text report (html or plain text) of the schedule, pointing out how many times each team has played each other, how many times they play in each timeslot, how many late/early games they have, how many back to back timeslots / opponents they have.  This is the phase where a human can spot a bad schedule and debug / regenerate as necessary.
+
+### other files
+
+The most important among the other files is `create-webpage.rb`.  It reads the current season information from `ice-oasis-leagues.rb` and creates a web page detailing what is going into each league and giving a link to run `create.cgi` from the webserver.
+
+The remaining files `test.rb`, `test-ics.rb`, `simple-schedule-analysis.rb`, `create-simple-empty-schedule.rb`, were mainly for early testing and I may remove them at some point.  They are not necessary at this point.
+
+
+
+
+# Data Structures
 
 The schedule is built up in stages by separate ruby modules.  They all contribute to/use a data structure.  
 
-# schedule
+## schedule
 
 `schedule` is a `Hash`.  It has the following entries:
 
