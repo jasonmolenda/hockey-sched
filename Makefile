@@ -8,7 +8,6 @@ all:
 		holidays.rb \
 		home-away-assignment.rb \
 		team-matchups-circular.rb \
-		team-matchups-randomization.rb \
 		parse-ics.rb \
 		analyze-schedule.rb \
 		create.cgi \
