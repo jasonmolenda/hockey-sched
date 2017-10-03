@@ -69,7 +69,7 @@ TeamMatchupsCircular.get_team_matchups(schedule)
 TimeslotAssignmentScoreBased.order_game_times(schedule, false)
 HomeAwayAssignment.assign_home_away(schedule)
 
-ics_text = CreateICSText.create_ics_file(schedule, leagues[:start_date], leagues[:end_date], league[:day_of_week], league[:team_names])
+ics_text = CreateICSText.create_ics_file(schedule, leagues[:start_date], leagues[:end_date], league[:day_of_week], league[:team_names].shuffle)
 
 n = 1
 rootdir = "/home/molenda/molenda.us/schedules-v2"

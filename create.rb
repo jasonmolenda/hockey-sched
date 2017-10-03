@@ -51,7 +51,7 @@ TeamMatchupsCircular.get_team_matchups(schedule)
 TimeslotAssignmentScoreBased.order_game_times(schedule, false)
 HomeAwayAssignment.assign_home_away(schedule)
 
-ics_text = CreateICSText.create_ics_file(schedule, leagues[:start_date], leagues[:end_date], league[:day_of_week], league[:team_names])
+ics_text = CreateICSText.create_ics_file(schedule, leagues[:start_date], leagues[:end_date], league[:day_of_week], league[:team_names].shuffle)
 
 total_number_of_weeks = (((leagues[:end_date] - leagues[:start_date]).to_i) / 7) + 1
 
