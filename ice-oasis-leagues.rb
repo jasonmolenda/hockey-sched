@@ -30,8 +30,10 @@ module IceOasisLeagues
             1  => {:description => "6:45pm",  :hour => 18, :minute => 45},
             2  => {:description => "8:00pm",  :hour => 20, :minute => 00},
             # 2017 Monday league
-            3  => {:description => "8:45pm",  :hour => 20, :minute => 45},
-            4  => {:description => "10:00pm", :hour => 22, :minute => 00},
+            3  => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
+            4  => {:description => "8:15pm",  :hour => 20, :minute => 15},
+            8  => {:description => "9:30pm",  :hour => 21, :minute => 30},
+            9  => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
 
             # 2017 Tuesday league(s)
             5  => {:description => "8:45pm",  :hour => 20, :minute => 45},
@@ -92,8 +94,8 @@ module IceOasisLeagues
             },
             { :day_of_week => 1,
               :name => "Monday",
-              :timeslot_ids => [3, 4, 3, 4],
-              :rink_ids => [1, 1, 2, 2],
+              :timeslot_ids => [3, 4, 8, 9],
+              :rink_ids => [1, 1, 1, 1],
               :team_names => [
                   "Flying Carpets", "Blue Martini", "Desert Owls", "Desert Hawks", "Toasters", "Sphinx", "Desert Rats", "Mirage" 
                 ]
