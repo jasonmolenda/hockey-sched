@@ -36,8 +36,8 @@ module IceOasisLeagues
             9  => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
 
             # 2017 Tuesday league(s)
-            5  => {:description => "8:45pm",  :hour => 20, :minute => 45},
-            6  => {:description => "10:00pm", :hour => 22, :minute => 00},
+            5  => {:description => "9:00pm",  :hour => 21, :minute => 00},
+            6  => {:description => "10:15pm", :hour => 22, :minute => 15},
             
             # 2017 Wednesday league
             10 => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
@@ -105,7 +105,7 @@ module IceOasisLeagues
               :timeslot_ids => [5, 6],
               :rink_ids => [1, 1],
               :team_names => [
-                  "Molson", "Kobra Kai", "Hard to Watch", "Kanter"
+                  "Molson", "Kobra Kai", "M I T", "Kanter"
                 ]
             },
             { :day_of_week => 2,
