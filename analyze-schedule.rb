@@ -204,20 +204,20 @@ module AnalyzeSchedule
                 late_games = timeslot_attribs.select {|ts| ts[:late_game]}
                 early_games = timeslot_attribs.select {|ts| ts[:early_game]}
                 alternate_day_games = timeslot_attribs.select {|ts| ts[:alternate_day]}
-                if late_games.size() > 0
-                    games = late_games.size()
-                    puts "<br />" if html
-                    printf "        #{games} - late games (%d%%)\n", 100.0 * games / gamecount
-                end
                 if early_games.size() > 0
                     games = early_games.size()
                     puts "<br />" if html
                     printf "        #{games} - early games (%d%%)\n", 100.0 * games / gamecount
                 end
+                if late_games.size() > 0
+                    games = late_games.size()
+                    puts "<br />" if html
+                    printf "        #{games} - late games (%d%%)\n", 100.0 * games / gamecount
+                end
                 if alternate_day_games.size() > 0
                     games = alternate_day_games.size()
                     puts "<br />" if html
-                    printf "        #{games} - alternate day games (%d%%)\n", 100.0 * games / gamecount
+                    printf "        #{games} - overflow day games (%d%%)\n", 100.0 * games / gamecount
                 end
                 puts "</tt>" if html
             end
