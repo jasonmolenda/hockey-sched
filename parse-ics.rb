@@ -64,6 +64,7 @@ module ParseICS
             team_numbers_seen.add(tnum)
             tnum += 1
         end
+        team_numbers_seen = team_numbers_seen.to_a
         events.each do |e|
             t1 = team_names_to_team_numbers[e[:home_team_name]]
             t2 = team_names_to_team_numbers[e[:away_team_name]]
@@ -97,7 +98,9 @@ module ParseICS
                 teams_with_games_this_week.add(e[:home])
                 teams_with_games_this_week.add(e[:away])
             end
-            teams_with_no_games = team_numbers_seen.subtract(teams_with_games_this_week).to_a
+            teams_with_no_games = Set.new team_numbers_seen
+            teams_with_no_games.subtract(teams_with_games_this_week)
+            teams_with_no_games = teams_with_no_games.to_a
             if teams_with_no_games.size > 1
                 puts "ERROR: too many teams without a game this week #{wknum}: #{teams_with_no_games}"
                 exit true

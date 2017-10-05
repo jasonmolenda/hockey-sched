@@ -18,7 +18,7 @@ module AnalyzeSchedule
             if bye_t != nil
                 all_games_for_each_team[bye_t].push({ 
                                             :bye => true, 
-                                            :date => schedule[:weeks][wknum][:date], 
+                                            :date => week[:date],
                                             :opponent => nil, 
                                             :home => false, 
                                             :start_time => nil, 
@@ -87,9 +87,15 @@ module AnalyzeSchedule
             rink_name_strs = Array.new
             all_games_for_each_team[tnum].each do |g|
                 if g[:bye] != false
-                    game_time_strs.push("bye")
-                    opponent_name_strs.push("bye")
-                    rink_name_strs.push("bye")
+                    if html
+                        game_time_strs.push("<b>bye</b>")
+                        opponent_name_strs.push("<b>bye</b>")
+                        rink_name_strs.push("<b>bye</b>")
+                    else
+                        game_time_strs.push("bye")
+                        opponent_name_strs.push("bye")
+                        rink_name_strs.push("bye")
+                    end
                     next
                 end
                 game_time_strs.push(schedule[:timeslots][g[:timeslot_id]][:description])

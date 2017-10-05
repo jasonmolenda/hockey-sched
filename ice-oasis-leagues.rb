@@ -67,7 +67,7 @@ module IceOasisLeagues
         entries_to_add.keys.each do |tid|
             if timeslots.has_key?(tid)
                 puts "ERROR: timeslots already has a #{tid} entry!"
-                exit true
+                exit false
             end
             entries_to_add[tid].keys.each do |key|
                 value = entries_to_add[tid][key]
@@ -160,8 +160,8 @@ module IceOasisLeagues
         team_names_seen = Hash.new
         [:name, :start_date, :end_date, :leagues].each do |key|
             if !league.has_key?(key)
-                puts "league is mising a :#{key} key"
-                exit true
+                STDERR.puts "league is mising a :#{key} key"
+                exit false
             end
         end
         league[:leagues].each do |l|
@@ -172,31 +172,31 @@ module IceOasisLeagues
             end
             l[:team_names].each do |t|
                 if team_names_seen.has_key?(t)
-                    puts "Team name '#{t}' occured in more than one league!"
-                    exit true
+                    STDERR.puts "Team name '#{t}' occured in more than one league!"
+                    exit false
                 end
                 team_names_seen[t] = true
             end
             teamcount = l[:team_names].size()
             gamecount = teamcount / 2
             if l[:timeslot_ids].size() % gamecount != 0
-                puts ":timeslot_ids array is not evenly divisible by # of games (#{gamecount}): #{l[:timeslot_ids]}"
-                exit true
+                STDERR.puts ":timeslot_ids array is not evenly divisible by # of games (#{gamecount}): #{l[:timeslot_ids]}"
+                exit false
             end
             if l[:rink_ids].size() % gamecount != 0
-                puts ":rink_ids array is not evenly divisible by # of games (#{gamecount}): #{l[:rink_ids]}"
-                exit true
+                STDERR.puts ":rink_ids array is not evenly divisible by # of games (#{gamecount}): #{l[:rink_ids]}"
+                exit false
             end
             l[:timeslot_ids].each do |tid|
                 if !timeslots.has_key?(tid)
-                    puts "Timeslots array does not have an entry for #{tid}"
-                    exit true
+                    STDERR.puts "Timeslots array does not have an entry for #{tid}"
+                    exit false
                 end
             end
             l[:rink_ids].each do |rid|
                 if !rinks.has_key?(rid)
-                    puts "inks array does not have an entry for #{rid}"
-                    exit true
+                    STDERR.puts "inks array does not have an entry for #{rid}"
+                    exit false
                 end
             end
         end
