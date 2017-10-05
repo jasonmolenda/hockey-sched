@@ -13,7 +13,7 @@ module ParseICS
         events = inital_ics_parse(text)
         day_of_week_hash = Hash.new(0)
         events.map { |e| day_of_week_hash[e[:start_time].wday] += 1 }
-        primary_day_of_week = day_of_week_hash.keys.sort {|x,y| a[x] <=> a[y]}.last
+        primary_day_of_week = day_of_week_hash.keys.sort {|x,y| day_of_week_hash[x] <=> day_of_week_hash[y]}.last
         
         rinks = IceOasisLeagues.get_rinks()
         timeslots = IceOasisLeagues.get_timeslots()
@@ -101,12 +101,19 @@ module ParseICS
             teams_with_no_games = Set.new team_numbers_seen
             teams_with_no_games.subtract(teams_with_games_this_week)
             teams_with_no_games = teams_with_no_games.to_a
-            if teams_with_no_games.size > 1
+            if teams_with_no_games.size  > 2
                 puts "ERROR: too many teams without a game this week #{wknum}: #{teams_with_no_games}"
                 exit true
             end
             schedule[:weeks][wknum] = Hash.new
-            schedule[:weeks][wknum][:bye] = teams_with_no_games[0]
+            if teams_with_no_games.size() == 1
+                schedule[:weeks][wknum][:bye] = teams_with_no_games[0]
+            else
+                schedule[:weeks][wknum][:bye] = nil
+            end
+            if teams_with_no_games.size() == 2
+                schedule[:weeks][wknum][:skipped] = teams_with_no_games
+            end
             schedule[:weeks][wknum][:date] = this_week
             schedule[:weeks][wknum][:games] = Array.new
             events_this_week.sort {|x,y| x[:start_time] <=> y[:start_time]}.each do |event|

@@ -18,35 +18,58 @@ module AnalyzeSchedule
             if bye_t != nil
                 all_games_for_each_team[bye_t].push({ 
                                             :bye => true, 
+                                            :skipped => false,
                                             :date => week[:date],
                                             :opponent => nil, 
                                             :home => false, 
                                             :start_time => nil, 
                                             :timeslot_id => nil, 
-                                            :rink_id => nil 
+                                            :rink_id => nil,
                                             })
+
+            end
+            # A skipped game happens when a league plays on two nights.
+            # The primary night of the league has games scheduled, but the
+            # secondary night has a holiday so there are no games.  We
+            # record the teams that should have played on the alternate
+            # day as a skipped game.
+            if week.has_key?(:skipped) && week[:skipped].size() == 2
+                week[:skipped].each do |t|
+                    all_games_for_each_team[t].push({ 
+                                                :bye => false, 
+                                                :skipped => true,
+                                                :date => week[:date],
+                                                :opponent => nil, 
+                                                :home => false, 
+                                                :start_time => nil, 
+                                                :timeslot_id => nil, 
+                                                :rink_id => nil,
+                                                })
+                end
             end
             week[:games].each do |game|
                 #puts "<br>#{team_name(schedule, game[:home])} v. #{team_name(schedule, game[:away])}"
                 t = game[:home]
                 all_games_for_each_team[t].push({
                                             :bye => false,
+                                            :skipped => false,
                                             :date => game[:datetime].to_date,
                                             :opponent => game[:away],
                                             :home => true,
                                             :start_time => game[:start_time],
                                             :timeslot_id => game[:timeslot_id],
-                                            :rink_id => game[:rink_id]
+                                            :rink_id => game[:rink_id],
                                                 })
                 t = game[:away]
                 all_games_for_each_team[t].push({
                                             :bye => false,
+                                            :skipped => false,
                                             :date => game[:datetime].to_date,
                                             :opponent => game[:home],
                                             :home => false,
                                             :start_time => game[:start_time],
                                             :timeslot_id => game[:timeslot_id],
-                                            :rink_id => game[:rink_id]
+                                            :rink_id => game[:rink_id],
                                                 })
             end
         end
@@ -69,11 +92,12 @@ module AnalyzeSchedule
 
             puts "<blockquote>" if html
 
-            gamecount = all_games_for_each_team[tnum].select {|g| g[:bye] == false }.size()
+            gamecount = all_games_for_each_team[tnum].select {|g| g[:bye] == false && g[:skipped] == false}.size()
             puts "Number of games: #{gamecount}"
             home_game_count = all_games_for_each_team[tnum].select {|g| g[:home] == true }.size()
-            away_game_count = all_games_for_each_team[tnum].select {|g| g[:home] == false && g[:bye] == false}.size()
+            away_game_count = all_games_for_each_team[tnum].select {|g| g[:home] == false && g[:bye] == false && g[:skipped] == false}.size()
             bye_game_count = all_games_for_each_team[tnum].select {|g| g[:bye] == true }.size()
+            skipped_game_count = all_games_for_each_team[tnum].select {|g| g[:skipped] == true }.size()
             puts "<br />" if html
             printf("Number of home games: #{home_game_count} (%d%%)\n", 100.0 * home_game_count / gamecount)
             puts "<br />" if html
@@ -81,6 +105,10 @@ module AnalyzeSchedule
             if bye_game_count > 0
                 puts "<br />" if html
                 printf("Number of byes: #{bye_game_count} (%d%%)\n", 100.0 * bye_game_count / gamecount)
+            end
+            if skipped_game_count > 0
+                puts "<br />" if html
+                printf("Number of skipped games: #{skipped_game_count} (%d%%)\n", 100.0 * skipped_game_count / gamecount)
             end
             game_time_strs = Array.new
             opponent_name_strs = Array.new
@@ -92,9 +120,21 @@ module AnalyzeSchedule
                         opponent_name_strs.push("<b>bye</b>")
                         rink_name_strs.push("<b>bye</b>")
                     else
-                        game_time_strs.push("bye")
-                        opponent_name_strs.push("bye")
-                        rink_name_strs.push("bye")
+                        game_time_strs.push("BYE")
+                        opponent_name_strs.push("BYE")
+                        rink_name_strs.push("BYE")
+                    end
+                    next
+                end
+                if g[:skipped] == true
+                    if html
+                        game_time_strs.push("<b>skipped</b>")
+                        opponent_name_strs.push("<b>skipped</b>")
+                        rink_name_strs.push("<b>skipped</b>")
+                    else
+                        game_time_strs.push("SKIPPED")
+                        opponent_name_strs.push("SKIPPED")
+                        rink_name_strs.push("SKIPPED")
                     end
                     next
                 end
@@ -128,6 +168,7 @@ module AnalyzeSchedule
             rinks = Hash.new(0)
             all_games_for_each_team[tnum].each do |g|
                 next if g[:bye] != false
+                next if g[:skipped] == true
                 opponents[team_name(schedule, g[:opponent])] += 1
                 hr = schedule[:timeslots][g[:timeslot_id]][:hour]
                 min = schedule[:timeslots][g[:timeslot_id]][:minute]
@@ -210,9 +251,9 @@ module AnalyzeSchedule
             end
 
 
-            opponent_list = all_games_for_each_team[tnum].select {|g| g[:bye] == false}.map {|g| team_name(schedule, g[:opponent])}
-            times_list = all_games_for_each_team[tnum].select {|g| g[:bye] == false}.map {|g| g[:timeslot_id]}
-            rink_list = all_games_for_each_team[tnum].select {|g| g[:bye] == false}.map {|g| g[:rink_id]}
+            opponent_list = all_games_for_each_team[tnum].select {|g| g[:bye] == false && g[:skipped] == false}.map {|g| team_name(schedule, g[:opponent])}
+            times_list = all_games_for_each_team[tnum].select {|g| g[:bye] == false && g[:skipped] == false}.map {|g| g[:timeslot_id]}
+            rink_list = all_games_for_each_team[tnum].select {|g| g[:bye] == false && g[:skipped] == false}.map {|g| g[:rink_id]}
 
             opponent_streaks = opponent_list.chunk{|y| y}.map{|y, ys| [y, ys.length]}.select{|v| v[1] > 1}
             time_streaks = times_list.chunk{|y| y}.map{|y, ys| [y, ys.length]}.select{|v| v[1] > 1}.

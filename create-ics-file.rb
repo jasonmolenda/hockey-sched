@@ -50,10 +50,21 @@ module CreateICSText
                 next
             end
             schedule[:weeks][wknum][:games].sort {|x,y| x[:rink_id] <=> y[:rink_id]}.each do |game|
+                game_day_maybe_offset = day
                 tid = game[:timeslot_id]
                 rid = game[:rink_id]
                 home = game[:home]
                 away = game[:away]
+                if schedule[:timeslots][tid][:alternate_day] == true
+                    game_day_maybe_offset += schedule[:timeslots][tid][:alternate_day_offset]
+                    # If the alternate day game is on a holiday, these two teams 
+                    # don't get to play this week.
+                    if holidays.member?(game_day_maybe_offset)
+                        schedule[:weeks][wknum][:skipped_teams] = [home, away]
+                        next
+                    end
+                end
+
                 home_team_name = team_names[home - 1]
                 away_team_name = team_names[away - 1]
                 rink_name = schedule[:rinks][rid][:short_name]
@@ -64,7 +75,7 @@ module CreateICSText
                 start_hour = schedule[:timeslots][tid][:hour]
                 start_minute = schedule[:timeslots][tid][:minute]
     
-                start_time = Time.iso8601("#{day.strftime}T%02d:%02d:00" % [start_hour, start_minute])
+                start_time = Time.iso8601("#{game_day_maybe_offset.strftime}T%02d:%02d:00" % [start_hour, start_minute])
                 end_time = start_time + (60 * 75)
     
                 ics.push("BEGIN:VEVENT")

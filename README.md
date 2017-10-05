@@ -103,6 +103,8 @@ The keys are `timeslot_id`s, the values are a hash with these keys:
 
 `:alternate_day` => boolean, true if this timeslot is on an alternate day.  e.g. a Thursday league that may schedule one game on Friday each week.  Should space out the Friday games in this case.
 
+`:alternate_day_offset` => the offset in days that the alternate day is.  e.g. if this league is a Wednesday league and one game is played on Friday nights ever week, this will be 2.  
+
 `:description` => textual description, used mostly for debugging
 
 ### :rinks hash

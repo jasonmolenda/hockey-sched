@@ -22,7 +22,7 @@ module IceOasisLeagues
     end
 
     def self.get_timeslots()
-        timeslots = Hash.new { |hsh, key| hsh[key] = {:late_game=>false, :early_game=>false, :alternate_day=>false} }
+        timeslots = Hash.new { |hsh, key| hsh[key] = {:late_game=>false, :early_game=>false, :alternate_day=>false, :alternate_day_offset => 0} }
 
         entries_to_add = {
             # 2017 Sunday league
