@@ -66,6 +66,8 @@ The schedule is built up in stages by separate ruby modules.  They all contribut
 
 `:bye` => If this schedule / week has a bye team, this is the team # that has the bye this week. If no bye this week, this will have a nil value.
 
+`:skipped` => *[optional]* This entry will only show up in a schedule that was scanned out of a finished schedule `.ics`.  When a league has games scheduled on two days -- a primary day where most of the games are and an overflow day where maybe one game is -- and the primary day has a game but the overflow day is a holiday, the teams that didn't get to play because of the holiday are listed here.  This is an Array with team numbers.  The alternative -- where the primary day is a holiday but the overflow day could have games scheduled -- is not done right now.  I think it's simplest if all the teams take that week off.  Test for the existence of this key before using it, it will normally not be present.
+
 `:team_matchups` => An array (`:gamecount` large, 0-based) of teams that are playing each other this week.  Each element of this 
 
 `:gamecount` array is a 2-elem Array of team numbers. This structure is used before timeslots are assigned -- the array is in no particular order.  The order of the teams in each element is not significant; home and away have not yet been set.
