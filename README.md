@@ -72,7 +72,7 @@ The schedule is built up in stages by separate ruby modules.  They all contribut
 
 `:gamecount` array is a 2-elem Array of team numbers. This structure is used before timeslots are assigned -- the array is in no particular order.  The order of the teams in each element is not significant; home and away have not yet been set.
 
-`:date` *[optional]*  Date object of this week's date.  Only present when analyzing an existing schedule with dates in it.  If a league has games on the main day and an alternate day, this will be the main day's Date.
+`:date` *[optional]*  Date object of this week's date.  Only present when analyzing an existing schedule with dates in it.  If a league has games on the main day and an overflow day, this will be the main day's Date.
 
 `:games` => An  `Array`, 0-based, the size of the array is the number of games played that week.  Each entry in this games array is a `Hash`.  It has these entries:
 
@@ -103,9 +103,9 @@ The keys are `timeslot_id`s, the values are a hash with these keys:
 
 `:early_game` => boolean, true if this is an inconveniently early game timeslot.
 
-`:alternate_day` => boolean, true if this timeslot is on an alternate day.  e.g. a Thursday league that may schedule one game on Friday each week.  Should space out the Friday games in this case.
+`:alternate_day` => boolean, true if this timeslot is on an alternate/oferflow day.  e.g. a Thursday league that may schedule one game on Friday each week.  Should space out the Friday games in this case.
 
-`:alternate_day_offset` => the offset in days that the alternate day is.  e.g. if this league is a Wednesday league and one game is played on Friday nights ever week, this will be 2.  
+`:alternate_day_offset` => the offset in days that the alternate/overflow day is.  e.g. if this league is a Wednesday league and one game is played on Friday nights ever week, this will be 2.  
 
 `:description` => textual description, used mostly for debugging
 
