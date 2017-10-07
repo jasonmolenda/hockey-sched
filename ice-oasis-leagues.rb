@@ -26,42 +26,44 @@ module IceOasisLeagues
 
         entries_to_add = {
             # 2017 Sunday league
-            0  => {:description => "5:30pm",  :hour => 17, :minute => 30},
-            1  => {:description => "6:45pm",  :hour => 18, :minute => 45},
-            2  => {:description => "8:00pm",  :hour => 20, :minute => 00},
+            10  => {:description => "5:30pm",  :hour => 17, :minute => 30},
+            11  => {:description => "6:45pm",  :hour => 18, :minute => 45},
+            12  => {:description => "8:00pm",  :hour => 20, :minute => 00},
+
             # 2017 Monday league
-            3  => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
-            4  => {:description => "8:15pm",  :hour => 20, :minute => 15},
-            8  => {:description => "9:30pm",  :hour => 21, :minute => 30},
-            9  => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+            20  => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
+            21  => {:description => "8:15pm",  :hour => 20, :minute => 15},
+            22  => {:description => "9:30pm",  :hour => 21, :minute => 30},
+            23  => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
 
             # 2017 Tuesday league(s)
-            5  => {:description => "9:00pm",  :hour => 21, :minute => 00},
-            6  => {:description => "10:15pm", :hour => 22, :minute => 15},
+            30  => {:description => "9:00pm",  :hour => 21, :minute => 00},
+            31  => {:description => "10:15pm", :hour => 22, :minute => 15},
             
             # 2017 Wednesday league
-            10 => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
-            11 => {:description => "8:15pm",  :hour => 20, :minute => 15},
-            12 => {:description => "9:30pm",  :hour => 21, :minute => 30},
-            13 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+            40 => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
+            41 => {:description => "8:15pm",  :hour => 20, :minute => 15},
+            42 => {:description => "9:30pm",  :hour => 21, :minute => 30},
+            43 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
 
             # 2017 Thursday league
             # RWC times
-            15 => {:description => "8:15pm",  :hour => 20, :minute => 15},
-            16 => {:description => "9:30pm",  :hour => 21, :minute => 30},
-            17 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+            50 => {:description => "8:15pm",  :hour => 20, :minute => 15},
+            51 => {:description => "9:30pm",  :hour => 21, :minute => 30},
+            52 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
             # SM times
-            18 => {:description => "7:45pm",  :hour => 19, :minute => 45},
-            19 => {:description => "9:00pm",  :hour => 21, :minute => 00},
-            20 => {:description => "10:15pm", :hour => 22, :minute => 15, :late_game => true},
+            53 => {:description => "7:45pm",  :hour => 19, :minute => 45},
+            54 => {:description => "9:00pm",  :hour => 21, :minute => 00},
+            55 => {:description => "10:15pm", :hour => 22, :minute => 15, :late_game => true},
 
             # 2017 Friday league
-            21 => {:description => "8:15pm",  :hour => 20, :minute => 15},
-            22 => {:description => "9:30pm",  :hour => 21, :minute => 30},
-            23 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+            60 => {:description => "8:15pm",  :hour => 20, :minute => 15},
+            61 => {:description => "9:30pm",  :hour => 21, :minute => 30},
+            62 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+
             # 2017 Saturday league
-            25 => {:description => "9:00pm",  :hour => 21, :minute => 00},
-            26 => {:description => "10:15pm", :hour => 22, :minute => 15},
+            70 => {:description => "9:00pm",  :hour => 21, :minute => 00},
+            71 => {:description => "10:15pm", :hour => 22, :minute => 15},
         }
 
         entries_to_add.keys.each do |tid|
@@ -86,7 +88,7 @@ module IceOasisLeagues
         fall2017[:leagues] = [
             { :day_of_week => 0,
               :name => "Sunday",
-              :timeslot_ids => [0, 1, 2],
+              :timeslot_ids => [10, 11, 12],
               :rink_ids => [1, 1, 1],
               :team_names => [
                   "Night Owls", "Desert Fleas", "Dates", "SuperEvil", "Desert Storm", "Sand Lizards"
@@ -94,7 +96,7 @@ module IceOasisLeagues
             },
             { :day_of_week => 1,
               :name => "Monday",
-              :timeslot_ids => [3, 4, 8, 9],
+              :timeslot_ids => [20, 21, 22, 23],
               :rink_ids => [1, 1, 1, 1],
               :team_names => [
                   "Flying Carpets", "Blue Martini", "Desert Owls", "Desert Hawks", "Toasters", "Sphinx", "Desert Rats", "Mirage" 
@@ -102,7 +104,7 @@ module IceOasisLeagues
             },
             { :day_of_week => 2,
               :name => "Tuesday RWC",
-              :timeslot_ids => [5, 6],
+              :timeslot_ids => [30, 31],
               :rink_ids => [1, 1],
               :team_names => [
                   "Molson", "Kobra Kai", "M I T", "Kanter"
@@ -110,7 +112,7 @@ module IceOasisLeagues
             },
             { :day_of_week => 2,
               :name => "Tuesday SM",
-              :timeslot_ids => [5, 6],
+              :timeslot_ids => [30, 31],
               :rink_ids => [2, 2],
               :team_names => [
                   "Sotasticks", "KingFishers", "Toucans", "O'Neill's"
@@ -118,7 +120,7 @@ module IceOasisLeagues
             },
             { :day_of_week => 3,
               :name => "Wednesday",
-              :timeslot_ids => [10, 11, 12, 13],
+              :timeslot_ids => [40, 41, 42, 43],
               :rink_ids => [1, 1, 1, 1],
               :team_names => [
                   "Camels", "Desert Dogs", "Pink Cactus", "Oasis", "Road Runners", "Sahara Desert", "Suns", "Arabian Knights"
@@ -126,7 +128,7 @@ module IceOasisLeagues
             },
             { :day_of_week => 4,
               :name => "Thursday",
-              :timeslot_ids => [15, 16, 17, 18, 19, 20],
+              :timeslot_ids => [50, 51, 52, 53, 54, 55],
               :rink_ids => [1, 1, 1, 2, 2, 2],
               :team_names => [
                   "Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes", "Geckos", "Tarantulas"
@@ -134,7 +136,7 @@ module IceOasisLeagues
             },
             { :day_of_week => 5,
               :name => "Friday",
-              :timeslot_ids => [21, 22, 23],
+              :timeslot_ids => [60, 61, 62],
               :rink_ids => [1, 1, 1],
               :team_names => [
                   "Lightning", "Intangibles", "Old Timers", "Otters", "Polars", "Shamrocks"
@@ -142,7 +144,7 @@ module IceOasisLeagues
             },
             { :day_of_week => 6,
               :name => "Saturday",
-              :timeslot_ids => [25, 26],
+              :timeslot_ids => [70, 71],
               :rink_ids => [1, 1],
               :team_names => [
                   "Gryphons", "Anubis", "Hydra", "Minotaurs"
