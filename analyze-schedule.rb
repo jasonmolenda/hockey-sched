@@ -138,7 +138,15 @@ module AnalyzeSchedule
                     end
                     next
                 end
-                game_time_strs.push(schedule[:timeslots][g[:timeslot_id]][:description])
+                game_time_desc = schedule[:timeslots][g[:timeslot_id]][:description]
+                if schedule[:timeslots][g[:timeslot_id]][:alternate_day]
+                    if html
+                        game_time_desc = "<b>ALT</b> #{game_time_desc}"
+                    else
+                        game_time_desc = "ALT #{game_time_desc}"
+                    end
+                end
+                game_time_strs.push(game_time_desc)
                 opponent_name_strs.push(team_name(schedule, g[:opponent]))
                 rink_name_strs.push(schedule[:rinks][g[:rink_id]][:short_name])
             end
