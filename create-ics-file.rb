@@ -93,7 +93,7 @@ module CreateICSText
                 if ts.has_key?(:alternate_day_offset) && ts[:alternate_day_offset] > 0
                     details.push("alternate_day_offset=#{ts[:alternate_day_offset]}")
                 end
-                ics.push("X-HOCKEY-SCHEDULE-DEETS: #{details.join(', ')}")
+                ics.push("X-HOCKEY-SCHEDULE-DEETS: #{details.join('#')}")
                 ics.push("LAST-MODIFIED:#{Time.now.gmtime.strftime("%Y%m%dT%H%M%SZ")}")
                 if rink_address != "" && rink_address != nil
                     ics.push(rink_location)

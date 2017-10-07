@@ -22,6 +22,7 @@ module ParseICS
         team_numbers_seen = Set.new
         dates_seen = Set.new
         rinks_seen = Set.new
+        unused_timeslot_id = 1
 
         events.each_index do |idx|
             if events[idx][:location] =~ /Redwood City/
@@ -32,12 +33,24 @@ module ParseICS
                 events[idx][:rink_id] = 2
                 rinks_seen.add(2)
             end
-            time_desc = events[idx][:start_time].strftime("%l:%M%p").downcase.gsub(/ /, '')
-            tid = timeslots.keys.select {|t| time_desc == timeslots[t][:description]}.first
-            if tid == nil
-                puts "Could not find a timeslot matching time #{time_desc}"
+
+            if events[idx].has_key?(:timeslot_attributes)
+                while timeslots.has_key?(unused_timeslot_id)
+                    unused_timeslot_id += 1
+                end
+                timeslots[unused_timeslot_id] = events[idx][:timeslot_attributes]
+                timeslots[unused_timeslot_id][:description] = events[idx][:start_time].strftime("%l:%M%p").downcase.gsub(/ /, '')
+                timeslots[unused_timeslot_id][:hour] = events[idx][:start_time].strftime("%k").to_i
+                timeslots[unused_timeslot_id][:minute] = events[idx][:start_time].strftime("%M").to_i
+                events[idx][:timeslot_id] = unused_timeslot_id
+            else
+                time_desc = events[idx][:start_time].strftime("%l:%M%p").downcase.gsub(/ /, '')
+                tid = timeslots.keys.select {|t| time_desc == timeslots[t][:description]}.first
+                if tid == nil
+                    puts "Could not find a timeslot matching time #{time_desc}"
+                end
+                events[idx][:timeslot_id] = tid
             end
-            events[idx][:timeslot_id] = tid
 
             summary = events[idx][:summary].gsub(/^SM /, '').gsub(/^RWC /, '')
             if summary =~ /(.+) v[.] (.+)/
@@ -154,6 +167,7 @@ module ParseICS
                 description = cur_event_lines.map {|i| i if i =~ /^DESCRIPTION/}.delete_if {|j| j.nil?}
                 location = cur_event_lines.map {|i| i if i =~ /^LOCATION/}.delete_if {|j| j.nil?}
                 uid = cur_event_lines.map {|i| i if i =~ /^UID:/}.delete_if {|j| j.nil?}
+                schedule_deets = cur_event_lines.map {|i| i if i =~ /^X-HOCKEY-SCHEDULE-DEETS:/}.delete_if {|j| j.nil?}
 
                 start_time = start_time[0] if start_time.instance_of? Array
                 end_time = end_time[0] if end_time.instance_of? Array
@@ -161,6 +175,7 @@ module ParseICS
                 description = description[0] if description.instance_of? Array
                 location = location[0] if location.instance_of? Array
                 uid = uid[0] if uid.instance_of? Array
+                schedule_deets = schedule_deets[0] if schedule_deets.instance_of? Array
 
                 if start_time.nil?
                     STDERR.puts "nil start_time for Array #{cur_event_lines}"
@@ -203,6 +218,25 @@ module ParseICS
                 this_event[:location] = location.gsub(/^LOCATION:\s*/, "").gsub(/\s*$/, "")
                 uid = `uuidgen`.strip if uid == nil
                 this_event[:uuid] = uid
+                timeslot_attribs = { :early_game => false, :late_game => false, :alternate_day => false }
+                schedule_deets.gsub!(/X-HOCKEY-SCHEDULE-DEETS: */, "")
+                schedule_deets.split(/#/).select {|s| s.size > 0}.each do |setting|
+                    if setting =~ /(.+)=(.+)/
+                        key = $1
+                        value = $2
+                        if value =~ /^[0-9]+$/
+                            value = value.to_i
+                        end
+                        if value == 'true'
+                            value = true
+                        end
+                        if value == 'false'
+                            value = false
+                        end
+                        timeslot_attribs[:"#{key}"] = value
+                    end
+                end
+                this_event[:timeslot_attributes] = timeslot_attribs
                 events.push(this_event)
                 next
             end
