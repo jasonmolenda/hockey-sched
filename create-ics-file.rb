@@ -84,6 +84,16 @@ module CreateICSText
                 ics.push("DTSTAMP:#{Time.now.gmtime.strftime("%Y%m%dT%H%M%SZ")}")
                 ics.push("CREATED:19000101T120000Z")
                 ics.push("DESCRIPTION:")
+                ics.push("X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:DISABLED")
+                ts = schedule[:timeslots][tid]
+                details = Array.new
+                details.push("early_game=true") if ts[:early_game]
+                details.push("late_game=true") if ts[:late_game]
+                details.push("alternate_day=true") if ts[:alternate_day]
+                if ts.has_key?(:alternate_day_offset) && ts[:alternate_day_offset] > 0
+                    details.push("alternate_day_offset=#{ts[:alternate_day_offset]}")
+                end
+                ics.push("X-HOCKEY-SCHEDULE-DEETS: #{details.join(', ')}")
                 ics.push("LAST-MODIFIED:#{Time.now.gmtime.strftime("%Y%m%dT%H%M%SZ")}")
                 if rink_address != "" && rink_address != nil
                     ics.push(rink_location)

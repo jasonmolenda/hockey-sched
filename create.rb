@@ -53,6 +53,16 @@ HomeAwayAssignment.assign_home_away(schedule)
 
 ics_text = CreateICSText.create_ics_file(schedule, leagues[:start_date], leagues[:end_date], league[:day_of_week], league[:team_names].shuffle)
 
+n = 1
+rootdir = "/tmp"
+while File.exist?("#{rootdir}/schedule-#{n}.ics")
+    n += 1
+end
+filename="#{rootdir}/schedule-#{n}.ics"
+File.open(filename, "w") do |f|
+    f.puts ics_text
+end
+
 total_number_of_weeks = (((leagues[:end_date] - leagues[:start_date]).to_i) / 7) + 1
 
 puts "This schedule covers a #{total_number_of_weeks} week period.  #{schedule[:weekcount]} games scheduled this season, skipping holidays"
