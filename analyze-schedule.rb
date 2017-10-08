@@ -196,7 +196,7 @@ module AnalyzeSchedule
                     end
                 end
                 print "<h4>" if html
-                print "# of games each team has at rink #{rinkname} in this schedule:"
+                print "# of games each team has at #{rinkname} in this schedule:"
                 print "</h4>" if html
                 puts ""
                 puts "<pre>" if html
