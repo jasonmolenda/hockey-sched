@@ -147,18 +147,18 @@ module AnalyzeSchedule
             puts ""
         end
 
-        if team_early_games.size() > 0
-            print "<h4>" if html
-            print "# of early games each team has in this schedule:"
-            print "</h4>" if html
-            puts ""
-            puts "<pre>" if html
-            team_early_games.keys.sort {|x,y| team_early_games[y] <=> team_early_games[x]}.each do |tname|
-                puts "     #{team_early_games[tname]} games: #{tname}"
-            end
-            puts "</pre>" if html
-            puts ""
-        end
+#        if team_early_games.size() > 0
+#            print "<h4>" if html
+#            print "# of early games each team has in this schedule:"
+#            print "</h4>" if html
+#            puts ""
+#            puts "<pre>" if html
+#            team_early_games.keys.sort {|x,y| team_early_games[y] <=> team_early_games[x]}.each do |tname|
+#                puts "     #{team_early_games[tname]} games: #{tname}"
+#            end
+#            puts "</pre>" if html
+#            puts ""
+#        end
 
         if team_bye_games.size() > 0
             print "<h4>" if html
