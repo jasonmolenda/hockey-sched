@@ -81,7 +81,133 @@ module AnalyzeSchedule
         puts "     #{teams_seen.join(', ')}"
         puts "</pre>" if html
         puts ""
-        puts ""
+
+        team_number_of_games = Hash.new(0)
+        team_late_games = Hash.new(0)
+        team_early_games = Hash.new(0)
+        team_bye_games = Hash.new(0)
+        team_overflow_games = Hash.new(0)
+        team_skipped_games = Hash.new(0)
+        team_num_games_at_each_rink = Hash.new {|hsh, key| hsh[key] = Hash.new(0) }
+        all_games_for_each_team.keys.each do |tnum|
+            team_name = team_name(schedule, tnum)
+            all_games_for_each_team[tnum].each do |g| 
+                tid = g[:timeslot_id]
+                if tid != nil
+                    if schedule[:timeslots][tid][:late_game]
+                        team_late_games[team_name] += 1
+                    end
+                    if schedule[:timeslots][tid][:late_game]
+                        team_early_games[team_name] += 1
+                    end
+                    if schedule[:timeslots][tid][:overflow_day]
+                        team_overflow_games[team_name] += 1
+                    end
+                    if schedule[:timeslots][tid][:overflow_day]
+                        team_overflow_games[team_name] += 1
+                    end
+                    if g[:bye]
+                        team_bye_games[team_name] += 1
+                    end
+                    if g[:skipped]
+                        team_skipped_games[team_name] += 1
+                    end
+                    if g[:bye] == false && g[:skipped] == false
+                        team_number_of_games[team_name] += 1
+                    end
+                    rink_name = schedule[:rinks][g[:rink_id]][:short_name]
+                    team_num_games_at_each_rink[team_name][rink_name] += 1
+                end
+            end
+        end
+
+# this one would only be interesting if the schedule was having serious problems...
+#
+#        print "<h4>" if html
+#        print "Total # of games each team has in this schedule:"
+#        print "</h4>" if html
+#        puts ""
+#        puts "<pre>" if html
+#        team_number_of_games.keys.sort {|x,y| team_number_of_games[y] <=> team_number_of_games[x]}.each do |tname|
+#            puts "     #{team_number_of_games[tname]} games: #{tname}"
+#        end
+#        puts "</pre>" if html
+#        puts ""
+
+        if team_late_games.size() > 0
+            print "<h4>" if html
+            print "# of late games each team has in this schedule:"
+            print "</h4>" if html
+            puts ""
+            puts "<pre>" if html
+            team_late_games.keys.sort {|x,y| team_late_games[y] <=> team_late_games[x]}.each do |tname|
+                puts "     #{team_late_games[tname]} games: #{tname}"
+            end
+            puts "</pre>" if html
+            puts ""
+        end
+
+        if team_early_games.size() > 0
+            print "<h4>" if html
+            print "# of early games each team has in this schedule:"
+            print "</h4>" if html
+            puts ""
+            puts "<pre>" if html
+            team_early_games.keys.sort {|x,y| team_early_games[y] <=> team_early_games[x]}.each do |tname|
+                puts "     #{team_early_games[tname]} games: #{tname}"
+            end
+            puts "</pre>" if html
+            puts ""
+        end
+
+        if team_bye_games.size() > 0
+            print "<h4>" if html
+            print "# of bye games each team has in this schedule:"
+            print "</h4>" if html
+            puts ""
+            puts "<pre>" if html
+            team_bye_games.keys.sort {|x,y| team_bye_games[y] <=> team_bye_games[x]}.each do |tname|
+                puts "     #{team_bye_games[tname]} games: #{tname}"
+            end
+            puts "</pre>" if html
+            puts ""
+        end
+
+        if team_skipped_games.size() > 0
+            print "<h4>" if html
+            print "# of skipped games each team has in this schedule:"
+            print "</h4>" if html
+            puts ""
+            puts "<pre>" if html
+            team_skipped_games.keys.sort {|x,y| team_skipped_games[y] <=> team_skipped_games[x]}.each do |tname|
+                puts "     #{team_skipped_games[tname]} games: #{tname}"
+            end
+            puts "</pre>" if html
+            puts ""
+        end
+
+        # only print the rink summaries if there is more than one rink
+        if team_num_games_at_each_rink.values.map {|v| v.keys}.flatten.sort.uniq.size() > 1
+            rinks_seen = team_num_games_at_each_rink.values.map {|v| v.keys}.flatten.sort.uniq.sort()
+            rinks_seen.each do |rinkname|
+                team_num_games_at_each_rink.keys.each do |tname|
+                    if !team_num_games_at_each_rink[tname].has_key?(rinkname)
+                        team_num_games_at_each_rink[tname][rinkname] = 0
+                    end
+                end
+                print "<h4>" if html
+                print "# of games each team has at rink #{rinkname} in this schedule:"
+                print "</h4>" if html
+                puts ""
+                puts "<pre>" if html
+                team_num_games_at_each_rink.keys.sort {|x,y| team_num_games_at_each_rink[y][rinkname] <=> team_num_games_at_each_rink[x][rinkname]}.each do |tname|
+                    puts "     #{team_num_games_at_each_rink[tname][rinkname]} games: #{tname}"
+                end
+                puts "</pre>" if html
+                puts ""
+            end
+        end
+
         all_games_for_each_team.keys.sort {|x,y| team_name(schedule, x) <=> team_name(schedule, y)}.each do |tnum|
             team_name = team_name(schedule, tnum)
             if html
