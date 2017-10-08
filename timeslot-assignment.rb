@@ -183,7 +183,7 @@ module TimeslotAssignmentScoreBased
     # all_timeslot_attributes is a Hash.  The keys are timeslot_id's.  The values are a Hash with k/v pairs:
     #    :late_game     true/false   # priority is to limit extraneous late games, back-to-backs not allowed
     #    :early_game    true/false   # try to avoid extraneous / back-to-back games
-    #    :alternate_day true/false   # if this league holds a timeslot on an alternate day, avoid extraneous / back-to-backs
+    #    :overflow_day  true/false   # if this league holds a timeslot on an overflow day, avoid extraneous / back-to-backs
     #    :timeslot_id   int          # each timeslot gets a unique integer value assigned.
     #                                # if a league plays on 7:00 + 8:15 one week, 9:30 + 10:45 next week,
     #                                # you would use 4 different ID #'s. One week will have timeslot_id's 1 & 2
@@ -265,7 +265,7 @@ module TimeslotAssignmentScoreBased
             timeslot_id = timeslot_ids[timeslot_idx]
             timeslot_is_late_game = all_timeslot_attributes[timeslot_id][:late_game]
             timeslot_is_early_game = all_timeslot_attributes[timeslot_id][:early_game]
-            timeslot_is_alternate_day = all_timeslot_attributes[timeslot_id][:alternate_day]
+            timeslot_is_overflow_day = all_timeslot_attributes[timeslot_id][:overflow_day]
             team_matchups.each_index do |team_pair_idx|
                 t1, t2 = team_matchups[team_pair_idx][0], team_matchups[team_pair_idx][1]
 
@@ -343,10 +343,10 @@ module TimeslotAssignmentScoreBased
                         || (!last_week_t2_timeslot_id.nil? && all_timeslot_attributes[last_week_t2_timeslot_id][:late_game] == true)
                             score = score + 70 
                         end
-                    elsif timeslot_is_alternate_day == true
-                        # Try to avoid back-to-back games on the league alternate-night
-                        if (!last_week_t1_timeslot_id.nil? && all_timeslot_attributes[last_week_t1_timeslot_id][:alternate_day] == true) \
-                            || (!last_week_t2_timeslot_id.nil? && all_timeslot_attributes[last_week_t2_timeslot_id][:alternate_day] == true)
+                    elsif timeslot_is_overflow_day == true
+                        # Try to avoid back-to-back games on the league overflow-night
+                        if (!last_week_t1_timeslot_id.nil? && all_timeslot_attributes[last_week_t1_timeslot_id][:overflow_day] == true) \
+                            || (!last_week_t2_timeslot_id.nil? && all_timeslot_attributes[last_week_t2_timeslot_id][:overflow_day] == true)
                             score = score + 10
                         end
                     elsif timeslot_is_early_game == true

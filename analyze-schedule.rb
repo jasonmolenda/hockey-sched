@@ -31,7 +31,7 @@ module AnalyzeSchedule
             # A skipped game happens when a league plays on two nights.
             # The primary night of the league has games scheduled, but the
             # secondary night has a holiday so there are no games.  We
-            # record the teams that should have played on the alternate
+            # record the teams that should have played on the overflow
             # day as a skipped game.
             if week.has_key?(:skipped) && week[:skipped].size() == 2
                 week[:skipped].each do |t|
@@ -139,7 +139,7 @@ module AnalyzeSchedule
                     next
                 end
                 game_time_desc = schedule[:timeslots][g[:timeslot_id]][:description]
-                if schedule[:timeslots][g[:timeslot_id]][:alternate_day]
+                if schedule[:timeslots][g[:timeslot_id]][:overflow_day]
                     if html
                         game_time_desc = "<b>ALT</b> #{game_time_desc}"
                     else
@@ -201,7 +201,7 @@ module AnalyzeSchedule
                                     tid = g[:timeslot_id]
                                     schedule[:timeslots][tid]
                                 end
-            if timeslot_attribs.count {|ts| ts[:late_game] == true || ts[:early_game] == true || ts[:alternate_day] == true} > 0
+            if timeslot_attribs.count {|ts| ts[:late_game] == true || ts[:early_game] == true || ts[:overflow_day] == true} > 0
                 puts "<p />" if html
                 print "Number of "
                 print "<b>" if html
@@ -211,7 +211,7 @@ module AnalyzeSchedule
                 puts "<tt>" if html
                 late_games = timeslot_attribs.select {|ts| ts[:late_game]}
                 early_games = timeslot_attribs.select {|ts| ts[:early_game]}
-                alternate_day_games = timeslot_attribs.select {|ts| ts[:alternate_day]}
+                overflow_day_games = timeslot_attribs.select {|ts| ts[:overflow_day]}
                 if early_games.size() > 0
                     games = early_games.size()
                     puts "<br />" if html
@@ -222,8 +222,8 @@ module AnalyzeSchedule
                     puts "<br />" if html
                     printf "        #{games} - late games (%d%%)\n", 100.0 * games / gamecount
                 end
-                if alternate_day_games.size() > 0
-                    games = alternate_day_games.size()
+                if overflow_day_games.size() > 0
+                    games = overflow_day_games.size()
                     puts "<br />" if html
                     printf "        #{games} - overflow day games (%d%%)\n", 100.0 * games / gamecount
                 end
@@ -268,7 +268,7 @@ module AnalyzeSchedule
                                 select do |v| 
                                     tid = v[0]
                                     ts = schedule[:timeslots][tid]
-                                    ts[:late_game] == true || ts[:early_game] == true || ts[:alternate_day] == true
+                                    ts[:late_game] == true || ts[:early_game] == true || ts[:overflow_day] == true
                                 end.
                                 map {|v| [schedule[:timeslots][v[0]][:description], v[1]]}
             rink_streaks = rink_list.chunk{|y| y}.map{|y, ys| [y, ys.length]}.select{|v| v[1] > 1}.

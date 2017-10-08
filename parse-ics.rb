@@ -167,7 +167,7 @@ module ParseICS
                 description = cur_event_lines.map {|i| i if i =~ /^DESCRIPTION/}.delete_if {|j| j.nil?}
                 location = cur_event_lines.map {|i| i if i =~ /^LOCATION/}.delete_if {|j| j.nil?}
                 uid = cur_event_lines.map {|i| i if i =~ /^UID:/}.delete_if {|j| j.nil?}
-                schedule_deets = cur_event_lines.map {|i| i if i =~ /^X-HOCKEY-SCHEDULE-DEETS:/}.delete_if {|j| j.nil?}
+                schedule_deets = cur_event_lines.map {|i| i if i =~ /^X-HOCKEY-SCHEDULE:/}.delete_if {|j| j.nil?}
 
                 start_time = start_time[0] if start_time.instance_of? Array
                 end_time = end_time[0] if end_time.instance_of? Array
@@ -218,8 +218,8 @@ module ParseICS
                 this_event[:location] = location.gsub(/^LOCATION:\s*/, "").gsub(/\s*$/, "")
                 uid = `uuidgen`.strip if uid == nil
                 this_event[:uuid] = uid
-                timeslot_attribs = { :early_game => false, :late_game => false, :alternate_day => false }
-                schedule_deets.gsub!(/X-HOCKEY-SCHEDULE-DEETS: */, "")
+                timeslot_attribs = { :early_game => false, :late_game => false, :overflow_day => false }
+                schedule_deets.gsub!(/X-HOCKEY-SCHEDULE: */, "")
                 schedule_deets.split(/#/).select {|s| s.size > 0}.each do |setting|
                     if setting =~ /(.+)=(.+)/
                         key = $1

@@ -17,7 +17,7 @@ The top level program that creates an ice oasis game schedule for a specific lea
 
 `holidays.rb` provides the holidays which need to be skipped when scheduling games.
 
-`team-matchups-circular.rb` takes the `schedule` object that `create` set up and decides which teams will be play which other teams in every game slot for the season.  It will put the team with a bye in a separate bye slot.  For certain # of teams, having the same pattern of teams facing each other over & over throughout the season can result in dramatically unbalanced time schedules.  For those leagues, `team-matchups-circular.rb` will play the teams in different order each set of games.  (for a 6 team league, a set of games takes 5 weeks to complete, where each team has played each other team once.)
+`team-matchups-circular.rb` takes the `schedule` object that `create` set up and decides which teams will be play which other teams in every game slot for the season.  It will put the team with a bye in a separate bye slot.  If a league plays on two nights (e.g. 4 games on Thursday and 1 game on Friday), and the secondary day is a holiday, the two teams that would have played on the secondary day are put on the schedule as skipped.  For certain # of teams, having the same pattern of teams facing each other over & over throughout the season can result in dramatically unbalanced time schedules when the time assignment pass happens.  For those leagues, `team-matchups-circular.rb` will play the teams in different order each set of games.  (for a 6 team league, a set of games takes 5 weeks to complete, where each team has played each other team once.)
 
 `timeslot-assignment.rb` is the second pass when filling out a `schedule`.  It looks at the team matchups that have been scheduled and assigns the team pairs to timeslots.  It has a scoring scheme so that teams will avoid having back to back late games, or play too many games in one specific slot.  It isn't perfect - sometimes near the end of a season you'll have two teams playing each other, team A and team B, and team A has already had all the late games it should have this season but team B is deficient on late games; it can be difficult to find a great solution to this.  The scoring system specifically tries to avoid back to back late games, it tries to avoid back to back early games, and has a slight preference against back to back other timeslots.
 
@@ -25,7 +25,7 @@ The top level program that creates an ice oasis game schedule for a specific lea
 
 `create-ics-file.rb` once the `schedule` internal object has been completed, `create-ics-file.rb` is called to create an iCal file which can be uploaded to google calendar or imported into a mac calendar app.
 
-`parse-ics.rb` parses an iCal file back into a `schedule` object as best it can, for analysis.  We want to analyze the `.ics` file that we generated as that's what everyone will actually be seeing.
+`parse-ics.rb` parses an iCal file back into a `schedule` object for analysis.  We want to analyze the `.ics` file that we generated as that's what everyone will actually be seeing.
 
 `analyze-schedule.rb` generates a text report (html or plain text) of the schedule, pointing out how many times each team has played each other, how many times they play in each timeslot, how many late/early games they have, how many back to back timeslots / opponents they have.  This is the phase where a human can spot a bad schedule and debug / regenerate as necessary.
 
@@ -88,7 +88,7 @@ The schedule is built up in stages by separate ruby modules.  They all contribut
 
 `:rink_id` => the `rink_id` of this game.
 
-`:datetime` => *[optional]* The time and date of the start of this game.  This field will only appear when analyzing an existing schedule, and may be useful for distinguishing games that are played on the primary day for the league versus an alternate overflow day.
+`:datetime` => *[optional]* The time and date of the start of this game.  This field will only appear when analyzing an existing schedule, and may be useful for distinguishing games that are played on the primary day for the league versus an overflow day.
 
 
 ### timeslots hash
@@ -103,9 +103,9 @@ The keys are `timeslot_id`s, the values are a hash with these keys:
 
 `:early_game` => boolean, true if this is an inconveniently early game timeslot.
 
-`:alternate_day` => boolean, true if this timeslot is on an alternate/oferflow day.  e.g. a Thursday league that may schedule one game on Friday each week.  Should space out the Friday games in this case.
+`:overflow_day` => boolean, true if this timeslot is on an overflow day.  e.g. a Thursday league that may schedule one game on Friday each week.  Should space out the Friday games in this case.
 
-`:alternate_day_offset` => the offset in days that the alternate/overflow day is.  e.g. if this league is a Wednesday league and one game is played on Friday nights ever week, this will be 2.  
+`:overflow_day_offset` => the offset in days that the overflow day is.  e.g. if this league is a Wednesday league and one game is played on Friday nights ever week, this will be 2.  
 
 `:description` => textual description, used mostly for debugging
 

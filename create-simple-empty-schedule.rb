@@ -41,24 +41,24 @@ module CreateSimpleEmptySchedule
         if timeslots == nil
             timeslots = {
                 # weeknight leagues
-                10 => { :late_game => false, :early_game => true, :alternate_day => false, :timeslot_id => 10, :description => "7:00pm", :hour => 19, :minute => 0},
-                20 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 20, :description => "8:15pm", :hour => 20, :minute => 15},
-                30 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 30, :description => "9:30pm", :hour => 21, :minute => 30},
-                40 => { :late_game => true, :early_game => false, :alternate_day => false, :timeslot_id => 40, :description => "10:45pm", :hour => 22, :minute => 45},
+                10 => { :late_game => false, :early_game => true, :overflow_day => false, :timeslot_id => 10, :description => "7:00pm", :hour => 19, :minute => 0},
+                20 => { :late_game => false, :early_game => false, :overflow_day => false, :timeslot_id => 20, :description => "8:15pm", :hour => 20, :minute => 15},
+                30 => { :late_game => false, :early_game => false, :overflow_day => false, :timeslot_id => 30, :description => "9:30pm", :hour => 21, :minute => 30},
+                40 => { :late_game => true, :early_game => false, :overflow_day => false, :timeslot_id => 40, :description => "10:45pm", :hour => 22, :minute => 45},
 
                 # the thursday league where games were sched fri 7 & 10:45 alternating
-                50 => { :late_game => false, :early_game => true, :alternate_day => true, :timeslot_id => 50, :description => "Fri 7:00pm", :hour => 19, :minute => 0},
-                60 => { :late_game => true, :early_game => false, :alternate_day => true, :timeslot_id => 60, :description => "Fri 10:45pm", :hour => 22, :minute => 45},
+                50 => { :late_game => false, :early_game => true, :overflow_day => true, :timeslot_id => 50, :description => "Fri 7:00pm", :hour => 19, :minute => 0},
+                60 => { :late_game => true, :early_game => false, :overflow_day => true, :timeslot_id => 60, :description => "Fri 10:45pm", :hour => 22, :minute => 45},
 
                 # weekend saturday
-                70 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 70, :description => "9:00pm", :hour => 21, :minute => 0},
-                80 => { :late_game => false, :early_game => false, :alternate_day => false, :timeslot_id => 80, :description => "10:15pm", :hour => 22, :minute => 15},
+                70 => { :late_game => false, :early_game => false, :overflow_day => false, :timeslot_id => 70, :description => "9:00pm", :hour => 21, :minute => 0},
+                80 => { :late_game => false, :early_game => false, :overflow_day => false, :timeslot_id => 80, :description => "10:15pm", :hour => 22, :minute => 15},
 
 
                 # Thursday Redwood City / San Mateo split league
-                120 => { :late_game => false, :early_game => false, :alternate_day => false,  :description => "7:45pm", :hour => 19, :minute => 45 },
-                130 => { :late_game => false, :early_game => false, :alternate_day => false,  :description => "9:00pm", :hour => 21, :minute => 00 },
-                140 => { :late_game => true, :early_game => false, :alternate_day => false,  :description => "10:15pm", :hour => 22, :minute => 15 },
+                120 => { :late_game => false, :early_game => false, :overflow_day => false,  :description => "7:45pm", :hour => 19, :minute => 45 },
+                130 => { :late_game => false, :early_game => false, :overflow_day => false,  :description => "9:00pm", :hour => 21, :minute => 00 },
+                140 => { :late_game => true, :early_game => false, :overflow_day => false,  :description => "10:15pm", :hour => 22, :minute => 15 },
             }
         end
         if rinks == nil

@@ -22,7 +22,11 @@ module IceOasisLeagues
     end
 
     def self.get_timeslots()
-        timeslots = Hash.new { |hsh, key| hsh[key] = {:late_game=>false, :early_game=>false, :alternate_day=>false, :alternate_day_offset => 0} }
+        # If a league had a game played on a different day -- e.g. a Thursday league that plays
+        # 4 games on Thursday and 1 on on Friday -- then :overflow_day => true and 
+        # :overflow_day_offset => 1 (1 day offset).  We don't have any leagues scheduled like
+        # this right now, but it is a supported configuration.
+        timeslots = Hash.new { |hsh, key| hsh[key] = {:late_game=>false, :early_game=>false, :overflow_day=>false, :overflow_day_offset => 0} }
 
         entries_to_add = {
             # 2017 Sunday league
@@ -82,7 +86,7 @@ module IceOasisLeagues
 
     def self.get_ice_oasis_leagues()
         fall2017 = Hash.new
-        fall2017[:name] = "Fall-Winter 2017-18"
+        fall2017[:name] = "Fall-Winter 2017-2018"
         fall2017[:start_date] = Date.parse("2017-10-01")
         fall2017[:end_date] = Date.parse("2018-03-10")
         fall2017[:leagues] = [

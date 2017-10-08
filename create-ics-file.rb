@@ -55,9 +55,9 @@ module CreateICSText
                 rid = game[:rink_id]
                 home = game[:home]
                 away = game[:away]
-                if schedule[:timeslots][tid][:alternate_day] == true
-                    game_day_maybe_offset += schedule[:timeslots][tid][:alternate_day_offset]
-                    # If the alternate day game is on a holiday, these two teams 
+                if schedule[:timeslots][tid][:overflow_day] == true
+                    game_day_maybe_offset += schedule[:timeslots][tid][:overflow_day_offset]
+                    # If the overflow day game is on a holiday, these two teams 
                     # don't get to play this week.
                     if holidays.member?(game_day_maybe_offset)
                         schedule[:weeks][wknum][:skipped_teams] = [home, away]
@@ -87,13 +87,15 @@ module CreateICSText
                 ics.push("X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:DISABLED")
                 ts = schedule[:timeslots][tid]
                 details = Array.new
+                details.push("timeslot_descripton=#{schedule[:timeslots][tid][:description]}")
                 details.push("early_game=true") if ts[:early_game]
                 details.push("late_game=true") if ts[:late_game]
-                details.push("alternate_day=true") if ts[:alternate_day]
-                if ts.has_key?(:alternate_day_offset) && ts[:alternate_day_offset] > 0
-                    details.push("alternate_day_offset=#{ts[:alternate_day_offset]}")
+                if ts[:overflow_day] && ts.has_key?(:overflow_day_offset) && ts[:overflow_day_offset] > 0
+                    details.push("overflow_day=true")
+                    details.push("overflow_day_offset=#{ts[:overflow_day_offset]}")
                 end
-                ics.push("X-HOCKEY-SCHEDULE-DEETS: #{details.join('#')}")
+                details.push("rink_name=#{rink_name}")
+                ics.push("X-HOCKEY-SCHEDULE: #{details.join('#')}")
                 ics.push("LAST-MODIFIED:#{Time.now.gmtime.strftime("%Y%m%dT%H%M%SZ")}")
                 if rink_address != "" && rink_address != nil
                     ics.push(rink_location)
