@@ -88,8 +88,8 @@ module IceOasisLeagues
         fall2018 = Hash.new
         fall2018[:name] = "Fall-Winter 2018-2019"
         fall2018[:short_name] = "fall2018"
-        fall2018[:start_date] = Date.parse("2018-10-01")
-        fall2018[:end_date] = Date.parse("2019-04-01")
+        fall2018[:start_date] = Date.parse("2018-09-30")
+        fall2018[:end_date] = Date.parse("2019-03-30")
         fall2018[:leagues] = [
             { :day_of_week => 0,
               :name => "Sunday",
@@ -283,8 +283,8 @@ module IceOasisLeagues
         fall2018 = Hash.new
         fall2018[:name] = "Fall-Winter 2018-2019"
         fall2018[:short_name] = "fall2018"
-        fall2018[:start_date] = Date.parse("2018-10-01")
-        fall2018[:end_date] = Date.parse("2019-04-01")
+        fall2018[:start_date] = Date.parse("2018-09-30")
+        fall2018[:end_date] = Date.parse("2019-03-30")
         fall2018[:leagues] = [
             { :day_of_week => 0,
               :name => "Sunday",
