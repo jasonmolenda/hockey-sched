@@ -55,9 +55,9 @@ module IceOasisLeagues
             151 => {:description => "9:30pm",  :hour => 21, :minute => 30},
             152 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
             # SM times
-            153 => {:description => "7:45pm",  :hour => 19, :minute => 45},
-            154 => {:description => "9:00pm",  :hour => 21, :minute => 00},
-            155 => {:description => "10:15pm", :hour => 22, :minute => 15, :late_game => true},
+            153 => {:description => "8:00pm",  :hour => 20, :minute => 00},
+            154 => {:description => "9:15pm",  :hour => 21, :minute => 15},
+            155 => {:description => "10:30pm", :hour => 22, :minute => 30, :late_game => true},
 
             # 2018 Friday league
             160 => {:description => "9:00pm",  :hour => 21, :minute => 00},
@@ -122,12 +122,22 @@ module IceOasisLeagues
                 ]
             },
             { :day_of_week => 4,
-              :name => "Thursday",
-              :timeslot_ids => [150, 151, 152, 153, 154, 155],
-              :rink_ids => [1, 1, 1, 2, 2, 2],
-              :team_names => [
-                  "Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes", "Geckos", "Tarantulas"
-                ]
+              :name => "Thursday RWC",
+              :timeslot_ids => [150, 151, 152],
+              :rink_ids => [1, 1, 1],
+              :team_names => ["team1rwc", "team2rwc", "team3rwc", "team4rwc", "team5rwc", "team6srwc"]
+#              :team_names => [
+#                  "Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes", "Geckos", "Tarantulas"
+#                ]
+            },
+            { :day_of_week => 4,
+              :name => "Thursday SM",
+              :timeslot_ids => [153, 154, 155],
+              :rink_ids => [2, 2, 2],
+              :team_names => ["team1sm", "team2sm", "team3sm", "team4sm", "team5sm", "team6sm"]
+#              :team_names => [
+#                  "Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes", "Geckos", "Tarantulas"
+#                ]
             },
             { :day_of_week => 5,
               :name => "Friday",
@@ -263,9 +273,9 @@ module IceOasisLeagues
             151 => {:description => "9:30pm"},
             152 => {:description => "10:45pm", :late_game => true},
             # SM times
-            153 => {:description => "7:45pm"},
-            154 => {:description => "9:00pm"},
-            155 => {:description => "10:15pm", :late_game => true},
+            153 => {:description => "8:00pm"},
+            154 => {:description => "9:15pm"},
+            155 => {:description => "10:30pm", :late_game => true},
 
             # 2018 Friday league
             160 => {:description => "9:00pm"},
@@ -315,12 +325,22 @@ module IceOasisLeagues
                 ]
             },
             { :day_of_week => 4,
-              :name => "Thursday",
-              :timeslot_ids => [150, 151, 152, 153, 154, 155],
-              :rink_ids => [1, 1, 1, 2, 2, 2],
-              :team_names => [
-                  "Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes", "Geckos", "Tarantulas"
-                ]
+              :name => "Thursday RWC",
+              :timeslot_ids => [150, 151, 152],
+              :rink_ids => [1, 1, 1],
+              :team_names => ["team1rwc", "team2rwc", "team3rwc", "team4rwc", "team5rwc", "team6rwc"]
+#              :team_names => [
+#                  "Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes", "Geckos", "Tarantulas"
+#                ]
+            },
+            { :day_of_week => 4,
+              :name => "Thursday SM",
+              :timeslot_ids => [153, 154, 155],
+              :rink_ids => [2, 2, 2],
+              :team_names => ["team1sm", "team2sm", "team3sm", "team4sm", "team5sm", "team6sm"]
+#              :team_names => [
+#                  "Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes", "Geckos", "Tarantulas"
+#                ]
             },
             { :day_of_week => 5,
               :name => "Friday",
