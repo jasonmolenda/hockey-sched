@@ -104,7 +104,7 @@ module IceOasisLeagues
               :timeslot_ids => [120, 121, 122, 123],
               :rink_ids => [1, 1, 1, 1],
               :team_names => [
-                  "Flying Carpets", "Blue Martini", "Desert Owls", "Desert Hawks", "Toasters", "Sphinx", "Desert Rats", "Mirage" 
+                  "Flying Carpets", "Blue Martini", "Desert Owls", "Specials", "Toasters", "Sphinx", "Desert Rats", "Mirage" 
                 ]
             },
             { :day_of_week => 2,
@@ -299,7 +299,7 @@ module IceOasisLeagues
               :timeslot_ids => [120, 121, 122, 123],
               :rink_ids => [1, 1, 1, 1],
               :team_names => [
-                  "Flying Carpets", "Blue Martini", "Desert Owls", "Desert Hawks", "Toasters", "Sphinx", "Desert Rats", "Mirage" 
+                  "Flying Carpets", "Blue Martini", "Desert Owls", "Specials", "Toasters", "Sphinx", "Desert Rats", "Mirage" 
                 ]
             },
             { :day_of_week => 2,
