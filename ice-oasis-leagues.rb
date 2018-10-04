@@ -29,10 +29,9 @@ module IceOasisLeagues
         timeslots = Hash.new { |hsh, key| hsh[key] = {:late_game=>false, :early_game=>false, :overflow_day=>false, :overflow_day_offset => 0} }
 
         entries_to_add = {
-            # 2017 and 2018 Sunday league
-            110  => {:description => "5:30pm",  :hour => 17, :minute => 30},
-            111  => {:description => "6:45pm",  :hour => 18, :minute => 45},
-            112  => {:description => "8:00pm",  :hour => 20, :minute => 00},
+            # 2018 Sunday league
+            110  => {:description => "5:45pm",  :hour => 17, :minute => 45},
+            111  => {:description => "7:00pm",  :hour => 19, :minute => 00},
 
             # 2017 and 2018 Monday league
             120  => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
@@ -60,10 +59,9 @@ module IceOasisLeagues
             154 => {:description => "9:00pm",  :hour => 21, :minute => 00},
             155 => {:description => "10:15pm", :hour => 22, :minute => 15, :late_game => true},
 
-            # 2017 and 2018 Friday league
-            160 => {:description => "8:15pm",  :hour => 20, :minute => 15},
-            161 => {:description => "9:30pm",  :hour => 21, :minute => 30},
-            162 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+            # 2018 Friday league
+            160 => {:description => "9:00pm",  :hour => 21, :minute => 00},
+            161 => {:description => "10:15pm",  :hour => 22, :minute => 15},
 
             # 2017 and 2018 Saturday league
             170 => {:description => "9:00pm",  :hour => 21, :minute => 00},
@@ -93,10 +91,10 @@ module IceOasisLeagues
         fall2018[:leagues] = [
             { :day_of_week => 0,
               :name => "Sunday",
-              :timeslot_ids => [110, 111, 112],
-              :rink_ids => [1, 1, 1],
+              :timeslot_ids => [110, 111],
+              :rink_ids => [1, 1],
               :team_names => [
-                  "Night Owls", "Desert Fleas", "Dates", "SuperEvil", "Desert Storm", "Sand Lizards"
+                  "Night Owls", "SuperEvil", "Desert Storm", "Sand Lizards"
                ]
             },
             { :day_of_week => 1,
@@ -133,10 +131,10 @@ module IceOasisLeagues
             },
             { :day_of_week => 5,
               :name => "Friday",
-              :timeslot_ids => [160, 161, 162],
-              :rink_ids => [1, 1, 1],
+              :timeslot_ids => [160, 161],
+              :rink_ids => [1, 1],
               :team_names => [
-                  "Lightning", "Intangibles", "Old Timers", "Otters", "Polars", "Shamrocks"
+                  "Lightning", "Intangibles", "Old Timers", "Polars"
                 ]
             },
             { :day_of_week => 6,
@@ -240,9 +238,8 @@ module IceOasisLeagues
 
         fall2018_timeslots = {
             # 2018 Sunday league
-            110  => {:description => "5:30pm"},
-            111  => {:description => "6:45pm"},
-            112  => {:description => "8:00pm"},
+            110  => {:description => "5:45pm"},
+            111  => {:description => "7:00pm"},
 
             # 2018 Monday league
             120  => {:description => "7:00pm", :early_game => true},
@@ -271,9 +268,8 @@ module IceOasisLeagues
             155 => {:description => "10:15pm", :late_game => true},
 
             # 2018 Friday league
-            160 => {:description => "8:15pm"},
-            161 => {:description => "9:30pm"},
-            162 => {:description => "10:45pm", :late_game => true},
+            160 => {:description => "9:00pm"},
+            161 => {:description => "10:15pm"},
 
             # 2018 Saturday league
             170 => {:description => "9:00pm"},
@@ -288,10 +284,10 @@ module IceOasisLeagues
         fall2018[:leagues] = [
             { :day_of_week => 0,
               :name => "Sunday",
-              :timeslot_ids => [110, 111, 112],
-              :rink_ids => [1, 1, 1],
+              :timeslot_ids => [110, 111],
+              :rink_ids => [1, 1],
               :team_names => [
-                  "Night Owls", "Desert Fleas", "Dates", "SuperEvil", "Desert Storm", "Sand Lizards"
+                  "Night Owls", "SuperEvil", "Desert Storm", "Sand Lizards"
                ]
             },
             { :day_of_week => 1,
@@ -328,10 +324,10 @@ module IceOasisLeagues
             },
             { :day_of_week => 5,
               :name => "Friday",
-              :timeslot_ids => [160, 161, 162],
-              :rink_ids => [1, 1, 1],
+              :timeslot_ids => [160, 161],
+              :rink_ids => [1, 1],
               :team_names => [
-                  "Lightning", "Intangibles", "Old Timers", "Otters", "Polars", "Shamrocks"
+                  "Lightning", "Intangibles", "Old Timers", "Polars"
                 ]
             },
             { :day_of_week => 6,
