@@ -138,7 +138,7 @@ module IceOasisLeagues
               :timeslot_ids => [160, 161],
               :rink_ids => [1, 1],
               :team_names => [
-                  "Lightning", "Intangibles", "Old Timers", "Polars"
+                  "Shamrocks", "Intangibles", "Old Timers", "Polars"
                 ]
             },
             { :day_of_week => 6,
@@ -335,7 +335,7 @@ module IceOasisLeagues
               :timeslot_ids => [160, 161],
               :rink_ids => [1, 1],
               :team_names => [
-                  "Lightning", "Intangibles", "Old Timers", "Polars"
+                  "Shamrocks", "Intangibles", "Old Timers", "Polars"
                 ]
             },
             { :day_of_week => 6,
