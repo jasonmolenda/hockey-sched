@@ -106,11 +106,11 @@ module IceOasisLeagues
                 ]
             },
             { :day_of_week => 2,
-              :name => "Tuesday",
+              :name => "Tuesday RWC",
               :timeslot_ids => [130, 131],
               :rink_ids => [1, 1],
               :team_names => [
-                  "Molson", "Kobra Kai", "Hard to Watch", "Kanter"
+                  "Stanford", "Cobra Kai", "PURPLE", "Kanter"
                 ]
             },
             { :day_of_week => 3,
@@ -122,22 +122,16 @@ module IceOasisLeagues
                 ]
             },
             { :day_of_week => 4,
-              :name => "Thursday RWC",
+              :name => "Thursday South",
               :timeslot_ids => [150, 151, 152],
               :rink_ids => [1, 1, 1],
-              :team_names => ["team1rwc", "team2rwc", "team3rwc", "team4rwc", "team5rwc", "team6srwc"]
-#              :team_names => [
-#                  "Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes", "Geckos", "Tarantulas"
-#                ]
+              :team_names => ["Desert Ravens", "Desert Tribe", "Oasis Owls", "Waves", "Danger", "Geckos"]
             },
             { :day_of_week => 4,
-              :name => "Thursday SM",
+              :name => "Thursday North",
               :timeslot_ids => [153, 154, 155],
               :rink_ids => [2, 2, 2],
-              :team_names => ["team1sm", "team2sm", "team3sm", "team4sm", "team5sm", "team6sm"]
-#              :team_names => [
-#                  "Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes", "Geckos", "Tarantulas"
-#                ]
+              :team_names => ["Sultans", "Desert Foxes", "Cobras", "Scorpions", "Genies", "Tarantulas"]
             },
             { :day_of_week => 5,
               :name => "Friday",
@@ -309,11 +303,11 @@ module IceOasisLeagues
                 ]
             },
             { :day_of_week => 2,
-              :name => "Tuesday",
+              :name => "Tuesday RWC",
               :timeslot_ids => [130, 131],
               :rink_ids => [1, 1],
               :team_names => [
-                  "Molson", "Kobra Kai", "Hard to Watch", "Kanter"
+                  "Stanford", "Cobra Kai", "PURPLE", "Kanter"
                 ]
             },
             { :day_of_week => 3,
@@ -325,22 +319,16 @@ module IceOasisLeagues
                 ]
             },
             { :day_of_week => 4,
-              :name => "Thursday RWC",
+              :name => "Thursday South",
               :timeslot_ids => [150, 151, 152],
               :rink_ids => [1, 1, 1],
-              :team_names => ["team1rwc", "team2rwc", "team3rwc", "team4rwc", "team5rwc", "team6rwc"]
-#              :team_names => [
-#                  "Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes", "Geckos", "Tarantulas"
-#                ]
+              :team_names => ["Desert Ravens", "Desert Tribe", "Oasis Owls", "Waves", "Danger", "Geckos"]
             },
             { :day_of_week => 4,
-              :name => "Thursday SM",
+              :name => "Thursday North",
               :timeslot_ids => [153, 154, 155],
               :rink_ids => [2, 2, 2],
-              :team_names => ["team1sm", "team2sm", "team3sm", "team4sm", "team5sm", "team6sm"]
-#              :team_names => [
-#                  "Desert Tribe", "Genies", "Cobras", "Sultans", "Waves", "Oasis Owls", "Desert Ravens", "Scorpions", "Danger", "Desert Foxes", "Geckos", "Tarantulas"
-#                ]
+              :team_names => ["Sultans", "Desert Foxes", "Cobras", "Scorpions", "Genies", "Tarantulas"]
             },
             { :day_of_week => 5,
               :name => "Friday",
