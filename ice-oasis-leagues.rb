@@ -94,7 +94,7 @@ module IceOasisLeagues
               :timeslot_ids => [110, 111],
               :rink_ids => [1, 1],
               :team_names => [
-                  "Night Owls", "SuperEvil", "Desert Storm", "Sand Lizards"
+                  "Night Owls", "SuperEvil", "Desert Storm", "Sand Lizards", "Coyotes"
                ]
             },
             { :day_of_week => 1,
@@ -291,7 +291,7 @@ module IceOasisLeagues
               :timeslot_ids => [110, 111],
               :rink_ids => [1, 1],
               :team_names => [
-                  "Night Owls", "SuperEvil", "Desert Storm", "Sand Lizards"
+                  "Night Owls", "SuperEvil", "Desert Storm", "Sand Lizards", "Coyotes"
                ]
             },
             { :day_of_week => 1,
