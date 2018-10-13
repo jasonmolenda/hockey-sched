@@ -98,8 +98,41 @@ if File.exists?(filename)
     final_schedule = ParseICS.ics_to_schedule(ics_text)
     AnalyzeSchedule.analyze_schedule(final_schedule, true)
 
+    puts "<h2>Schedule details</h2>"
 
-    #puts "<br>Or run it through the <a href=\"http://molenda.us/cgi-bin/hockey-sched/check.cgi?url=#{url.gsub(/\//, "%2F")}&startdate=&enddate=&Submit=Submit\">schedule checker</a>."
+    puts "<pre>"
+    final_schedule[:weeks].each do |wk|
+        printf "#{wk[:date].strftime("%Y-%m-%d")}"
+        first = true
+        wk[:games].each do |gm|
+            if first == true
+                printf "  "
+                first = false
+            else
+                #      "2018-10-12  "
+                printf "            "
+            end
+            if final_schedule[:rinkcount] > 1
+                printf "%-4s", final_schedule[:rinks][gm[:rink_id]]
+            end
+            game_time = final_schedule[:timeslots][gm[:timeslot_id]][:description]
+            printf "%-8s", game_time
+            home_team = final_schedule[:team_names][gm[:home] - 1]
+            away_team = final_schedule[:team_names][gm[:away] - 1]
+            puts "#{home_team} v. #{away_team}"
+        end
+        if wk[:bye] != nil
+            #      "2018-10-12  "
+            printf "            "
+            if final_schedule[:rinkcount] > 1
+                printf "    "
+            end
+            printf "%-8s", "BYE"
+            puts "#{final_schedule[:team_names][wk[:bye] - 1]}"
+        end
+        puts ""
+    end
+    puts "</pre>"
 else
     puts "Failed to create calendar file."
 end
