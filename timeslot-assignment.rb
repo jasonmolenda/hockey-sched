@@ -306,6 +306,8 @@ module TimeslotAssignmentScoreBased
                     if timeslot_is_late_game == true
                         score += 50
                     end
+                else
+                    score -= 20
                 end
 
                 # Back to back 10:45's are very bad.
