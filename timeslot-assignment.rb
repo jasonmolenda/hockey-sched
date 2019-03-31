@@ -120,7 +120,7 @@ module TimeslotAssignmentScoreBased
         #
         max_num_games_for_each_team_in_each_timeslot = Hash.new
         total_number_of_games_in_each_timeslot.keys.each do |timeslot_id|
-            max_num_games_for_each_team_in_each_timeslot[timeslot_id] = (total_number_of_games_in_each_timeslot[timeslot_id].to_f / teamcount).ceil
+            max_num_games_for_each_team_in_each_timeslot[timeslot_id] = (total_number_of_games_in_each_timeslot[timeslot_id].to_f / teamcount).floor
         end
 
         scheduled_games_with_timeslots = Array.new
