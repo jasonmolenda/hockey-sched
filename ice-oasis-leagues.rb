@@ -88,7 +88,7 @@ module IceOasisLeagues
         summer2019[:name] = "Spring-Summer 2019"
         summer2019[:short_name] = "summer2019"
         summer2019[:start_date] = Date.parse("2019-04-07")
-        summer2019[:end_date] = Date.parse("2019-06-24")
+        summer2019[:end_date] = Date.parse("2019-09-07")
         summer2019[:leagues] = [
             { :day_of_week => 0,
               :name => "Sunday",
@@ -286,7 +286,7 @@ module IceOasisLeagues
         summer2019[:name] = "Spring-Summer 2019"
         summer2019[:short_name] = "summer2019"
         summer2019[:start_date] = Date.parse("2019-04-07")
-        summer2019[:end_date] = Date.parse("2019-06-24")
+        summer2019[:end_date] = Date.parse("2019-09-07")
         summer2019[:leagues] = [
             { :day_of_week => 0,
               :name => "Sunday",
