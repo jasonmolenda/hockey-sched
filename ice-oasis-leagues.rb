@@ -84,12 +84,12 @@ module IceOasisLeagues
     end
 
     def self.get_ice_oasis_leagues()
-        summer2019 = Hash.new
-        summer2019[:name] = "Spring-Summer 2019"
-        summer2019[:short_name] = "summer2019"
-        summer2019[:start_date] = Date.parse("2019-04-07")
-        summer2019[:end_date] = Date.parse("2019-09-07")
-        summer2019[:leagues] = [
+        fall2019 = Hash.new
+        fall2019[:name] = "Fall-Winter 2019-2020"
+        fall2019[:short_name] = "fall2019"
+        fall2019[:start_date] = Date.parse("2019-10-10")
+        fall2019[:end_date] = Date.parse("2020-03-05")
+        fall2019[:leagues] = [
             { :day_of_week => 0,
               :name => "Sunday",
               :timeslot_ids => [110, 111, 112],
@@ -126,7 +126,7 @@ module IceOasisLeagues
               :name => "Thursday South",
               :timeslot_ids => [150, 151, 152],
               :rink_ids => [1, 1, 1],
-              :team_names => ["Desert Ravens", "Desert Tribe", "Oasis Owls", "Waves", "Danger", "Geckos"]
+              :team_names => ["Desert Ravens", "Desert Tribe", "Oasis Owls", "Flyers", "Danger", "Geckos"]
             },
             { :day_of_week => 4,
               :name => "Thursday North",
@@ -152,8 +152,8 @@ module IceOasisLeagues
             },
         ]
 
-        verify_league(summer2019)
-        return summer2019
+        verify_league(fall2019)
+        return fall2019
     end
 
     def self.verify_league(league)
@@ -240,6 +240,122 @@ module IceOasisLeagues
 
     def self.get_old_seasons()
         old_seasons = Hash.new
+
+        fall2019_timeslots = {
+            # 2018 Sunday league
+            110  => {:description => "4:30pm",  :hour => 16, :minute => 30},
+            111  => {:description => "5:45pm",  :hour => 17, :minute => 45},
+            112  => {:description => "7:00pm",  :hour => 19, :minute => 00},
+
+            # 2017 and 2018 Monday league
+            120  => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
+            121  => {:description => "8:15pm",  :hour => 20, :minute => 15},
+            122  => {:description => "9:30pm",  :hour => 21, :minute => 30},
+            123  => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+
+            # 2017 and 2018 Tuesday league
+            130  => {:description => "9:00pm",  :hour => 21, :minute => 00},
+            131  => {:description => "10:15pm", :hour => 22, :minute => 15},
+            
+            # 2017 and 2018 Wednesday league
+            140 => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
+            141 => {:description => "8:15pm",  :hour => 20, :minute => 15},
+            142 => {:description => "9:30pm",  :hour => 21, :minute => 30},
+            143 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+
+            # 2017 and 2018 Thursday league
+            # RWC times
+            150 => {:description => "8:15pm",  :hour => 20, :minute => 15},
+            151 => {:description => "9:30pm",  :hour => 21, :minute => 30},
+            152 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+            # SM times
+            153 => {:description => "8:00pm",  :hour => 20, :minute => 00},
+            154 => {:description => "9:15pm",  :hour => 21, :minute => 15},
+            155 => {:description => "10:30pm", :hour => 22, :minute => 30, :late_game => true},
+
+            # 2018 Friday league
+            160 => {:description => "9:00pm",  :hour => 21, :minute => 00},
+            161 => {:description => "10:15pm",  :hour => 22, :minute => 15},
+
+            # 2017 and 2018 Saturday league
+            170 => {:description => "9:00pm",  :hour => 21, :minute => 00},
+            171 => {:description => "10:15pm", :hour => 22, :minute => 15},
+        }
+
+        fall2019 = Hash.new
+        fall2019[:name] = "Fall-Winter 2019-2020"
+        fall2019[:short_name] = "fall2019"
+        fall2019[:start_date] = Date.parse("2019-10-10")
+        fall2019[:end_date] = Date.parse("2020-03-05")
+        fall2019[:leagues] = [
+            { :day_of_week => 0,
+              :name => "Sunday",
+              :timeslot_ids => [110, 111, 112],
+              :rink_ids => [1, 1, 1],
+              :team_names => [
+                  "Night Owls", "SuperEvil", "Desert Storm", "Sand Lizards", "Coyotes", "Badgers"
+               ]
+            },
+            { :day_of_week => 1,
+              :name => "Monday",
+              :timeslot_ids => [120, 121, 122, 123],
+              :rink_ids => [1, 1, 1, 1],
+              :team_names => [
+                  "Flying Carpets", "Blue Martini", "Desert Owls", "Specials", "Toasters", "Sphinx", "Desert Rats", "Mirage" 
+                ]
+            },
+            { :day_of_week => 2,
+              :name => "Tuesday RWC",
+              :timeslot_ids => [130, 131],
+              :rink_ids => [1, 1],
+              :team_names => [
+                  "Stanford", "Cobra Kai", "PURPLE", "Kanter"
+                ]
+            },
+            { :day_of_week => 3,
+              :name => "Wednesday",
+              :timeslot_ids => [140, 141, 142, 143],
+              :rink_ids => [1, 1, 1, 1],
+              :team_names => [
+                  "Camels", "Desert Dogs", "Pink Cactus", "Oasis", "Road Runners", "Sahara Desert", "Suns", "Arabian Knights"
+                ]
+            },
+            { :day_of_week => 4,
+              :name => "Thursday South",
+              :timeslot_ids => [150, 151, 152],
+              :rink_ids => [1, 1, 1],
+              :team_names => ["Desert Ravens", "Desert Tribe", "Oasis Owls", "Flyers", "Danger", "Geckos"]
+            },
+            { :day_of_week => 4,
+              :name => "Thursday North",
+              :timeslot_ids => [153, 154, 155],
+              :rink_ids => [2, 2, 2],
+              :team_names => ["Sultans", "Desert Foxes", "Cobras", "Scorpions", "Genies", "Tarantulas"]
+            },
+            { :day_of_week => 5,
+              :name => "Friday",
+              :timeslot_ids => [160, 161],
+              :rink_ids => [1, 1],
+              :team_names => [
+                  "Shamrocks", "Intangibles", "Old Timers", "Polars"
+                ]
+            },
+            { :day_of_week => 6,
+              :name => "Saturday",
+              :timeslot_ids => [170, 171],
+              :rink_ids => [1, 1],
+              :team_names => [
+                  "Gryphons", "Anubis", "Hydra", "Minotaurs"
+                ]
+            },
+        ]
+
+        verify_league(fall2019)
+
+        old_seasons["fall2019"] = Hash.new
+        old_seasons["fall2019"][:timeslots] = self.hand_entered_times_to_timeslots(fall2019_timeslots)
+        old_seasons["fall2019"][:league_schedule] = fall2019
+
 
         summer2019_timeslots = {
             # 2018 Sunday league
