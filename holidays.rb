@@ -55,6 +55,21 @@ module HolidayDates
             "2019-12-29",  # xmas break
             "2019-12-30",  # xmas break
             "2019-12-31",  # xmas break
+
+            "2020-01-01",  # new year's
+            "2020-05-25",  # memorial day
+            "2020-07-04",  # 4th of july
+            "2020-09-07",  # labor day
+            "2020-11-26",  # thanksgiving
+            "2020-11-27",  # day after thanksgiving
+            "2020-12-24",  # xmas break
+            "2020-12-25",  # xmas break
+            "2020-12-26",  # xmas break
+            "2020-12-27",  # xmas break
+            "2020-12-28",  # xmas break
+            "2020-12-29",  # xmas break
+            "2020-12-30",  # xmas break
+            "2020-12-31",  # xmas break
         ]
 
         return holidays.map {|h| Date.parse(h)}.to_set
