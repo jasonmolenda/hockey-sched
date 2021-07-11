@@ -88,19 +88,19 @@ module HolidayDates
             "2021-12-31",  # xmas break
 
             "2022-01-01",  # new year's
-            "2021-05-30",  # memorial day
-            "2021-07-04",  # 4th of july
-            "2021-09-05",  # labor day
-            "2021-11-24",  # thanksgiving
-            "2021-11-25",  # day after thanksgiving
-            "2021-12-24",  # xmas break
-            "2021-12-25",  # xmas break
-            "2021-12-26",  # xmas break
-            "2021-12-27",  # xmas break
-            "2021-12-28",  # xmas break
-            "2021-12-29",  # xmas break
-            "2021-12-30",  # xmas break
-            "2021-12-31",  # xmas break
+            "2022-05-30",  # memorial day
+            "2022-07-04",  # 4th of july
+            "2022-09-05",  # labor day
+            "2022-11-24",  # thanksgiving
+            "2022-11-25",  # day after thanksgiving
+            "2022-12-24",  # xmas break
+            "2022-12-25",  # xmas break
+            "2022-12-26",  # xmas break
+            "2022-12-27",  # xmas break
+            "2022-12-28",  # xmas break
+            "2022-12-29",  # xmas break
+            "2022-12-30",  # xmas break
+            "2022-12-31",  # xmas break
 
         ]
 
