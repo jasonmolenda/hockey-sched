@@ -74,6 +74,7 @@ module HolidayDates
             "2021-01-01",  # new year's
             "2021-05-31",  # memorial day
             "2021-07-04",  # 4th of july
+            "2021-09-04",  # labor day
             "2021-09-06",  # labor day
             "2021-11-25",  # thanksgiving
             "2021-11-26",  # day after thanksgiving
