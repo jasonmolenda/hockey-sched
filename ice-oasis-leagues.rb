@@ -29,24 +29,23 @@ module IceOasisLeagues
         timeslots = Hash.new { |hsh, key| hsh[key] = {:late_game=>false, :early_game=>false, :overflow_day=>false, :overflow_day_offset => 0} }
 
         entries_to_add = {
-            # 2021 Monday league
+            # 2021 and 2022 Monday league
             120  => {:description => "8:00pm",  :hour => 20, :minute => 00, :early_game => true},
             121  => {:description => "9:15pm",  :hour => 21, :minute => 15},
             122  => {:description => "10:30pm",  :hour => 22, :minute => 30, :late_game => true},
 
-            # 2017 and 2018 and 2021 Wednesday league
-            140 => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
-            141 => {:description => "8:15pm",  :hour => 20, :minute => 15},
-            142 => {:description => "9:30pm",  :hour => 21, :minute => 30},
-            143 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+            # 2022 Wednesday league
+            140 => {:description => "8:00pm",  :hour => 20, :minute => 00, :early_game => true},
+            141 => {:description => "9:15pm",  :hour => 21, :minute => 15},
+            142 => {:description => "10:30pm", :hour => 22, :minute => 30, :late_game => true},
 
-            # 2021 Thursday league
+            # 2021 and 2022 Thursday league
             150 => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
             151 => {:description => "8:15pm",  :hour => 20, :minute => 15},
             152 => {:description => "9:30pm",  :hour => 21, :minute => 30},
             153 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
 
-            # 2017 and 2018 and 2021 Saturday league
+            # 2017 and 2018 and 2021 and 2022 Saturday league
             170 => {:description => "9:00pm",  :hour => 21, :minute => 00},
             171 => {:description => "10:15pm", :hour => 22, :minute => 15},
         }
@@ -66,12 +65,12 @@ module IceOasisLeagues
     end
 
     def self.get_ice_oasis_leagues()
-        summer2021 = Hash.new
-        summer2021[:name] = "Summer 2021"
-        summer2021[:short_name] = "summer2021"
-        summer2021[:start_date] = Date.parse("2021-07-12")
-        summer2021[:end_date] = Date.parse("2021-09-30")
-        summer2021[:leagues] = [
+        winter2022 = Hash.new
+        winter2022[:name] = "Winter-Spring 2022"
+        winter2022[:short_name] = "winter2022"
+        winter2022[:start_date] = Date.parse("2022-01-03")
+        winter2022[:end_date] = Date.parse("2022-05-31")
+        winter2022[:leagues] = [
             { :day_of_week => 1,
               :name => "Monday",
               :timeslot_ids => [120, 121, 122],
@@ -82,10 +81,10 @@ module IceOasisLeagues
             },
             { :day_of_week => 3,
               :name => "Wednesday",
-              :timeslot_ids => [140, 141, 142, 143],
-              :rink_ids => [2, 2, 2, 2],
+              :timeslot_ids => [140, 141, 142],
+              :rink_ids => [2, 2, 2],
               :team_names => [
-                  "Camels", "Desert Dogs", "Pink Cactus", "Oasis", "Road Runners", "Sahara Desert", "Suns", "Arabian Knights"
+                  "Camels", "Oasis", "Road Runners", "Sahara Desert", "Suns", "Arabian Knights"
                 ]
             },
             { :day_of_week => 4,
@@ -104,8 +103,8 @@ module IceOasisLeagues
             },
         ]
 
-        verify_league(summer2021)
-        return summer2021
+        verify_league(winter2022)
+        return winter2022
     end
 
     def self.verify_league(league)
@@ -192,6 +191,66 @@ module IceOasisLeagues
 
     def self.get_old_seasons()
         old_seasons = Hash.new
+
+        winter2022_timeslosts = {
+            # 2021 and 2022 Monday league
+            120  => {:description => "8:00pm",  :hour => 20, :minute => 00, :early_game => true},
+            121  => {:description => "9:15pm",  :hour => 21, :minute => 15},
+            122  => {:description => "10:30pm",  :hour => 22, :minute => 30, :late_game => true},
+
+            # 2022 Wednesday league
+            140 => {:description => "8:00pm",  :hour => 20, :minute => 00, :early_game => true},
+            141 => {:description => "9:15pm",  :hour => 21, :minute => 15},
+            142 => {:description => "10:30pm", :hour => 22, :minute => 30, :late_game => true},
+
+            # 2021 and 2022 Thursday league
+            150 => {:description => "7:00pm",  :hour => 19, :minute => 00, :early_game => true},
+            151 => {:description => "8:15pm",  :hour => 20, :minute => 15},
+            152 => {:description => "9:30pm",  :hour => 21, :minute => 30},
+            153 => {:description => "10:45pm", :hour => 22, :minute => 45, :late_game => true},
+
+            # 2017 and 2018 and 2021 and 2022 Saturday league
+            170 => {:description => "9:00pm",  :hour => 21, :minute => 00},
+            171 => {:description => "10:15pm", :hour => 22, :minute => 15},
+        }
+
+        winter2022 = Hash.new
+        winter2022[:name] = "Winter-Spring 2022"
+        winter2022[:short_name] = "winter2022"
+        winter2022[:start_date] = Date.parse("2022-01-03")
+        winter2022[:end_date] = Date.parse("2022-05-31")
+        winter2022[:leagues] = [
+            { :day_of_week => 1,
+              :name => "Monday",
+              :timeslot_ids => [120, 121, 122],
+              :rink_ids => [2, 2, 2],
+              :team_names => [
+                  "Flying Carpets", "Blue Martini", "Desert Owls", "Toasters", "Sphinx", "Desert Rats"
+                ]
+            },
+            { :day_of_week => 3,
+              :name => "Wednesday",
+              :timeslot_ids => [140, 141, 142],
+              :rink_ids => [2, 2, 2, 2],
+              :team_names => [
+                  "Camels", "Oasis", "Road Runners", "Sahara Desert", "Suns", "Arabian Knights"
+                ]
+            },
+            { :day_of_week => 4,
+              :name => "Thursday",
+              :timeslot_ids => [150, 151, 152, 153],
+              :rink_ids => [2, 2, 2, 2],
+              :team_names => ["Desert Ravens", "Desert Tribe", "Oasis Owls", "Flyers", "Danger", "Geckos", "Sultans", "Desert Foxes"]
+            },
+            { :day_of_week => 6,
+              :name => "Saturday",
+              :timeslot_ids => [170, 171],
+              :rink_ids => [2, 2],
+              :team_names => [
+                  "Gryphons", "Anubis", "Hydra", "Minotaurs"
+                ]
+            },
+        ]
 
         summer2021_timeslots = {
             # 2021 Monday league
